@@ -9,8 +9,9 @@ namespace Booking.Domain.Entities
         public int Id { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
+        
+        [Range(100, 10000, ErrorMessage = "Price must be between {1} and {2}")]
         [Display(Name = "Price per night")]
-        [Range(100, 10000, ErrorMessage = "Price must be between {0} and {1}")]
         public double Price { get; set; }
         [Display(Name = "Square Feet")]
         public int SquareFeet { get; set; }
