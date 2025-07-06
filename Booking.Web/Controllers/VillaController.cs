@@ -1,4 +1,5 @@
-﻿using Booking.Domain.Entities;
+﻿using Booking.Application.Common.Interfaces;
+using Booking.Domain.Entities;
 using Booking.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +8,14 @@ namespace Booking.Web.Controllers
     public class VillaController : Controller
     {
         // add db context here if needed
-        private readonly ApplicationDbContext _context;
-        public VillaController(ApplicationDbContext context)
+        private readonly IVillaRepository _villaRepository;
+        public VillaController(IVillaRepository villaRepository)
         {
-            _context = context;
+            _villaRepository = villaRepository;
         }
         public IActionResult Index()
         {
-            var villas = _context.Villas.ToList();
+            var villas = _villaRepository.GetAll();
             return View(villas);
         }
         public IActionResult Create()
@@ -26,19 +27,19 @@ namespace Booking.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Villas.Add(obj);
+                _villaRepository.Add(obj);
                 obj.CreatedDate = DateTime.Now;
-                _context.SaveChanges();
+                _villaRepository.Save(); 
                 TempData["success"] = "Villa created successfully";
                 return RedirectToAction(nameof(Index));
             }
             // If model state is not valid, return the same view with the model to show validation errors
             TempData["error"] = "Error creating villa";
-            return View(obj);
+            return View();
         }
         public IActionResult Update(int villaId)
         {
-            var villa = _context.Villas.FirstOrDefault(v => v.Id == villaId);
+            Villa? villa = _villaRepository.Get(v => v.Id == villaId);
             if (villa == null)
             {
                 return RedirectToAction("Error", "Home");
@@ -50,20 +51,21 @@ namespace Booking.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var villa = _context.Villas.FirstOrDefault(v => v.Id == obj.Id);
-                if (villa == null)
+                Villa? villa = _villaRepository.Get(v => v.Id == obj.Id);
+                if (villa==null)
                 {
                     TempData["error"] = "Villa not found";
                     return RedirectToAction("Error", "Home");
                 }
-                villa.Name = obj.Name;
-                villa.Description = obj.Description;
-                villa.Price = obj.Price;
-                villa.SquareFeet = obj.SquareFeet;
-                villa.Occupancy = obj.Occupancy;
-                villa.ImageUrl = obj.ImageUrl;
+
                 villa.UpdatedDate = DateTime.Now;
-                _context.SaveChanges();
+                villa.SquareFeet = obj.SquareFeet;
+                villa.Price = obj.Price;
+                villa.Occupancy = obj.Occupancy;
+                villa.Description = obj.Description;
+                villa.Name = obj.Name;
+                villa.ImageUrl = obj.ImageUrl;
+                _villaRepository.Save();
                 TempData["success"] = "Villa updated successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -71,7 +73,7 @@ namespace Booking.Web.Controllers
         }
         public IActionResult Delete(int villaId)
         {
-            var villa = _context.Villas.FirstOrDefault(v => v.Id == villaId);
+            Villa? villa = _villaRepository.Get(v => v.Id == villaId);
             if (villa == null)
             {
                 TempData["error"] = "Villa not found";
@@ -82,14 +84,14 @@ namespace Booking.Web.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int villaId)
         {
-            var villa = _context.Villas.FirstOrDefault(v => v.Id == villaId);
+            Villa? villa = _villaRepository.Get(v => v.Id == villaId);
             if (villa == null)
             {
                 TempData["error"] = "Villa not found";
                 return RedirectToAction("Error", "Home");
             }
-            _context.Villas.Remove(villa);
-            _context.SaveChanges();
+            _villaRepository.Remove(villa);
+            _villaRepository.Save();
             TempData["success"] = "Villa deleted successfully";
             return RedirectToAction(nameof(Index));
         }
