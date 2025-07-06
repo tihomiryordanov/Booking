@@ -1,11 +1,16 @@
+
+
 using Booking.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 // add db context and services
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

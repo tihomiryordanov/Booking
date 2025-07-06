@@ -12,9 +12,10 @@ namespace Booking.Infrastructure.Data
         {
         }
         public DbSet<Villa> Villas { get; set; } = null!;
+        public DbSet<VillaNumber> VillaNumbers { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);
             //Seeding the database with initial data
             modelBuilder.Entity<Villa>().HasData(
                       new Villa
@@ -47,6 +48,57 @@ namespace Booking.Infrastructure.Data
                         Price = 400,
                         SquareFeet = 750,
                     }
+            );
+            modelBuilder.Entity<VillaNumber>().HasData(
+                new VillaNumber
+                {
+                    Villa_Number = 101,
+                    VillaId = 1,
+                    SpecialDetails = "Special details for villa number 101"
+                },
+                new VillaNumber
+                {
+                    Villa_Number = 102,
+                    VillaId = 1,
+                    SpecialDetails = "Special details for villa number 102"
+                },
+                new VillaNumber
+                {
+                    Villa_Number = 103,
+                    VillaId = 1,
+                    SpecialDetails = "Special details for villa number 103"
+                },
+                new VillaNumber
+                {
+                    Villa_Number = 201,
+                    VillaId = 2,
+                    SpecialDetails = "Special details for villa number 201"
+                },
+                new VillaNumber
+                {
+                    Villa_Number = 202,
+                    VillaId = 2,
+                    SpecialDetails = "Special details for villa number 202"
+                },
+                new VillaNumber {
+                    Villa_Number = 203,
+                    VillaId = 2,
+                    SpecialDetails = "Special details for villa number 203"
+                },
+
+                new VillaNumber
+                {
+                    Villa_Number = 301,
+                    VillaId = 3,
+                    SpecialDetails = "Special details for villa number 301"
+                },
+                new VillaNumber
+                {
+                    Villa_Number = 302,
+                    VillaId = 3,
+                    SpecialDetails = "Special details for villa number 302"
+                }
+
             );
         }
     }
