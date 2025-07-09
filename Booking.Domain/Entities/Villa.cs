@@ -1,6 +1,8 @@
 ﻿
 
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Booking.Domain.Entities
 {
@@ -19,6 +21,8 @@ namespace Booking.Domain.Entities
         //display as image url in the UI
         [Display(Name = "Image URL")]
         public string? ImageUrl { get; set; }
+        [NotMapped]
+        public IFormFile? Image { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; } 
 
