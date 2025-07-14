@@ -1,11 +1,12 @@
 ﻿
 
 using Booking.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Booking.Infrastructure.Data
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext: IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -14,9 +15,10 @@ namespace Booking.Infrastructure.Data
         public DbSet<Villa> Villas { get; set; } = null!;
         public DbSet<VillaNumber> VillaNumbers { get; set; } = null!;
         public DbSet<Amenity> Amenities { get; set; } = null!;
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);
             //Seeding the database with initial data
             modelBuilder.Entity<Villa>().HasData(
                       new Villa

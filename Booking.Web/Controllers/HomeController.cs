@@ -26,13 +26,40 @@ namespace Booking.Web.Controllers
             };
             return View(homeVM);
         }
-
-        public IActionResult Privacy()
+        //[HttpPost]
+        //public IActionResult Index(HomeVM homeVM)
+        //{
+        //    homeVM.VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+        //    foreach (var villa in homeVM.VillaList)
+        //    {
+        //        if (villa.Id%2==0)
+        //        {
+        //            villa.IsAvailable = false;
+        //        }
+        //    }
+        //    return View(homeVM);
+        //}
+        [HttpPost]
+        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
-            return View();
+            var VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
+            foreach (var villa in VillaList)
+            {
+                if (villa.Id % 2 == 0)
+                {
+                    villa.IsAvailable = false;
+                }
+            }
+            HomeVM homeVM = new()
+            {
+                CheckInDate = checkInDate,
+                VillaList = VillaList,
+                Nights = nights
+            };
+            //Thread.Sleep(2000); // Simulate a delay for demonstration purposes
+            return PartialView("_VillaList", homeVM);
         }
 
-       
         public IActionResult Error()
         {
             return View();

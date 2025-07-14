@@ -1,10 +1,12 @@
 ﻿using Booking.Application.Common.Interfaces;
 using Booking.Domain.Entities;
 using Booking.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Booking.Web.Controllers
 {
+    [Authorize]
     public class VillaController : Controller
     {
         // add db context here if needed

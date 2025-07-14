@@ -1,10 +1,13 @@
 ﻿using Booking.Application.Common.Interfaces;
+using Booking.Application.Common.Utility;
 using Booking.Web.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Booking.Web.Controllers
 {
+    [Authorize(Roles = SD.Role_Admin)]
     public class AmenityController : Controller
     {
 

@@ -60,3 +60,34 @@
         <partial name="_VillaList" model="Model" />
     </form>
 </div>
+
+@section scripts {
+    <script>
+        function fnLoadVillaList() {
+            $('.spinner').show();
+            var objData = {
+                checkInDate: $("#CheckInDate").val(),
+                nights: $("#Nights").val()
+            };
+
+        $.ajax({
+                type: "POST",
+                data:objData,
+                url: "@Url.Action("GetVillasByDate", "Home")",
+                success: function (data) {
+                    $("#VillasList").empty();
+                    $("#VillasList").html(data);
+                    $('.spinner').hide();
+                },
+                failure: function (response) {
+                    $('.spinner').hide();
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    $('.spinner').hide();
+                    alert(response.responseText);
+                }
+            });
+        }
+    </script>
+}
