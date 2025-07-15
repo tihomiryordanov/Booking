@@ -60,38 +60,11 @@ namespace Booking.Web.Controllers
             return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
 
 
-            //if (!_villaService.IsVillaAvailableByDate(villa.Id, booking.Nights, booking.CheckInDate))
-            //{
-            //    TempData["error"] = "Room has been sold out!";
-            //    //no rooms available
-            //    return RedirectToAction(nameof(FinalizeBooking), new
-            //    {
-            //        villaId = booking.VillaId,
-            //        checkInDate = booking.CheckInDate,
-            //        nights = booking.Nights
-            //    });
-            //}
-        }
+           
 
         public IActionResult BookingConfirmation(int bookingId)
         {
-            //Booking bookingFromDb = _bookingService.GetBookingById(bookingId);
-
-            //if (bookingFromDb.Status == SD.StatusPending)
-            //{
-            //    //this is a pending order, we need to confirm if payment was successful
-
-            //    var service = new SessionService();
-            //    Session session = service.Get(bookingFromDb.StripeSessionId);
-
-            //    if (session.PaymentStatus == "paid")
-            //    {
-            //        _bookingService.UpdateStatus(bookingFromDb.Id, SD.StatusApproved, 0);
-            //        _bookingService.UpdateStripePaymentID(bookingFromDb.Id, session.Id, session.PaymentIntentId);
-
-            //        _emailService.SendEmailAsync(bookingFromDb.Email, "Booking Confirmation - White Lagoon", "<p>Your booking has been confirmed. Booking ID - " + bookingFromDb.Id + "</p>");
-            //    }
-            //}
+            
 
             return View(bookingId);
         }
