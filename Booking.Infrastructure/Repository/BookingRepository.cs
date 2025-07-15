@@ -8,18 +8,20 @@ using System.Linq.Expressions;
 
 namespace Booking.Infrastructure.Repository
 {
-    public class AmenityRepository : Repository<Amenity>, IAmenityRepository
+    public class BookingRepository : Repository<Booking.Domain.Entities.BookingTable>, IBookingRepository
     {
         private readonly ApplicationDbContext _db;
 
-        public AmenityRepository(ApplicationDbContext db):base(db)
+        public BookingRepository(ApplicationDbContext db) : base(db)
         {
-            _db= db;
+            _db = db;
         }
 
-        public void Update(Amenity entity)
+        public void Update(Booking.Domain.Entities.BookingTable entity)
         {
-            _db.Update(entity);
+            _db.Bookings.Update(entity);
         }
+
+
     }
 }

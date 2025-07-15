@@ -16,6 +16,7 @@ namespace Booking.Infrastructure.Data
         public DbSet<VillaNumber> VillaNumbers { get; set; } = null!;
         public DbSet<Amenity> Amenities { get; set; } = null!;
         public DbSet<ApplicationUser> ApplicationUsers { get; set; } = null!;
+        public DbSet<BookingTable> Bookings { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

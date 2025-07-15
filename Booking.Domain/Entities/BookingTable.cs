@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Booking.Domain.Entities
 {
-    public class Booking
+    public class BookingTable
     {
         [Key]
         public int Id { get; set; }

@@ -8,6 +8,8 @@ namespace Booking.Application.Common.Interfaces
         // Add other repositories here as needed
         IVillaNumberRepository VillaNumberRepository { get; }
         IAmenityRepository AmenityRepository { get; }
+        IBookingRepository BookingRepository { get; }
+        IApplicationUserRepository ApplicationUserRepository { get; }
         void Save();
     }
 }
