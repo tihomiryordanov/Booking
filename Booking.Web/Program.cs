@@ -34,7 +34,7 @@ builder.Services.AddControllersWithViews();
 //register stripe settings
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 var app = builder.Build();
-//
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
