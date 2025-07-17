@@ -1,5 +1,3 @@
-
-
 using Booking.Application.Common.Interfaces;
 using Booking.Domain.Entities;
 using Booking.Infrastructure.Data;
@@ -55,3 +53,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
