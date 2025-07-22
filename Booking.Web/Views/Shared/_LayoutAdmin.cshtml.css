@@ -1,0 +1,183 @@
+﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+
+
+a {
+  color: #0077cc;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+/* Sidebar Fluent Design */
+.sidebar {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+    .sidebar .navbar-nav {
+        padding: 0;
+    }
+
+    .sidebar .nav-item {
+        margin: 2px 8px;
+    }
+
+    .sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        font-weight: 500;
+    }
+
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, #0078d4, #106ebe);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+        }
+
+            .sidebar .nav-link:hover::before {
+                transform: scaleY(1);
+            }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, rgba(0, 120, 212, 0.2) 0%, rgba(16, 110, 190, 0.2) 100%) !important;
+            color: #ffffff !important;
+            border-left: 3px solid #0078d4;
+            box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+        }
+
+            .sidebar .nav-link.active::before {
+                transform: scaleY(1);
+            }
+
+        .sidebar .nav-link i {
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover i {
+            transform: scale(1.1);
+            color: #0078d4;
+        }
+
+        .sidebar .nav-link span:last-child {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+    .sidebar .text-muted {
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 8px 16px 4px 16px !important;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+/* Smooth collapse animation */
+#sidebarMenu.collapsing {
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 767.98px) {
+    #sidebarMenu {
+        position: fixed;
+        top: 56px;
+        left: -100%;
+        height: calc(100vh - 56px);
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+        #sidebarMenu.show {
+            left: 0;
+        }
+}
+
+/* Loading spinner positioning */
+.loading.spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+/* Main content area adjustments */
+main {
+    transition: margin-left 0.3s ease;
+}
+
+/* Scrollbar styling for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
