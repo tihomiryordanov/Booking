@@ -1,5 +1,6 @@
 ﻿using Booking.Application.Common.Interfaces;
 using Booking.Application.Common.Utility;
+using Booking.Domain.Entities;
 using Booking.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,42 +65,40 @@ namespace Booking.Web.Controllers
         }
         public IActionResult Update(int AmenityId)
         {
-            var Amenity = _unitOfWork.AmenityRepository.Get(v => v.Id == AmenityId, includeProperties: "Villa");
-            if (Amenity == null)
+            AmenityVM amenityVM = new()
+            {
+                VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity").Select(u => new SelectListItem
+                {
+                    Text = u.Name,
+                    Value = u.Id.ToString()
+                }),
+                Amenity = _unitOfWork.AmenityRepository.Get(v => v.Id == AmenityId, includeProperties: "Villa")
+            };
+            if (amenityVM.Amenity == null)
             {
                 return RedirectToAction("Error", "Home");
             }
-
-            IEnumerable<SelectListItem> villaList = _unitOfWork.VillaRepository.GetAll()
-             .Select(v => new SelectListItem
-             {
-                 Text = v.Name,
-                 Value = v.Id.ToString()
-             });
-            AmenityVM AmenityVM = new AmenityVM()
-            {
-                VillaList = villaList,
-                Amenity = Amenity
-            };
-
-            return View(AmenityVM);
+            return View(amenityVM);
         }
         [HttpPost]
         public IActionResult Update(AmenityVM obj)
         {
+
             if (ModelState.IsValid)
             {
+                ArgumentNullException.ThrowIfNull(obj.Amenity);
+
                 _unitOfWork.AmenityRepository.Update(obj.Amenity);
                 _unitOfWork.Save();
-                TempData["success"] = "Amenity updated successfully";
+                TempData["success"] = "The amenity has been updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            obj.VillaList = _unitOfWork.VillaRepository.GetAll()
-                 .Select(v => new SelectListItem
-                 {
-                     Text = v.Name,
-                     Value = v.Id.ToString()
-                 });
+
+            obj.VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity").Select(u => new SelectListItem
+            {
+                Text = u.Name,
+                Value = u.Id.ToString()
+            });
             return View(obj);
         }
         public IActionResult Delete(int AmenityId)
