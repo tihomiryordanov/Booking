@@ -53,5 +53,7 @@ namespace Booking.Application.Common.Utility
 
             return finalAvailableRoomForAllNights;
         }
+
+       
     }
 }
