@@ -1,6 +1,6 @@
-﻿namespace Booking.Web.ViewModels
+﻿namespace Booking.Application.Common.DTO
 {
-    public class PieChartVM
+    public class PieChartDTO
     {
         public decimal[] Series { get; set; }
         public string[] Labels { get; set; }

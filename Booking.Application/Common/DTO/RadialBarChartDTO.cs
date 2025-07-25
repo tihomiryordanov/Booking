@@ -1,6 +1,6 @@
-﻿namespace Booking.Web.ViewModels
+﻿namespace Booking.Application.Common.DTO
 {
-    public class RadialBarChartVM
+    public class RadialBarChartDTO
     {
         public decimal TotalCount { get; set; }
         public decimal CountInCurrentMonth { get; set; }

@@ -1,5 +1,6 @@
 ﻿
 
+using Booking.Application.Common.DTO;
 using Booking.Domain.Entities;
 
 namespace Booking.Application.Common.Utility
@@ -17,8 +18,8 @@ namespace Booking.Application.Common.Utility
         public const string StatusRefunded = "Refunded";
 
         public static int VillaRoomsAvailable_Count(int villaId,
-          List<VillaNumber> villaNumberList, DateOnly checkInDate, int nights,
-         List<BookingTable> bookings)
+            List<VillaNumber> villaNumberList, DateOnly checkInDate, int nights,
+           List<BookingTable> bookings)
         {
             List<int> bookingInDate = new();
             int finalAvailableRoomForAllNights = int.MaxValue;
@@ -54,6 +55,24 @@ namespace Booking.Application.Common.Utility
             return finalAvailableRoomForAllNights;
         }
 
-       
+        public static RadialBarChartDTO GetRadialCartDataModel(int totalCount, double currentMonthCount, double prevMonthCount)
+        {
+            RadialBarChartDTO RadialBarChartDto = new();
+
+
+            int increaseDecreaseRatio = 100;
+
+            if (prevMonthCount != 0)
+            {
+                increaseDecreaseRatio = Convert.ToInt32((currentMonthCount - prevMonthCount) / prevMonthCount * 100);
+            }
+
+            RadialBarChartDto.TotalCount = totalCount;
+            RadialBarChartDto.CountInCurrentMonth = Convert.ToInt32(currentMonthCount);
+            RadialBarChartDto.HasRatioIncreased = currentMonthCount > prevMonthCount;
+            RadialBarChartDto.Series = new int[] { increaseDecreaseRatio };
+
+            return RadialBarChartDto;
+        }
     }
 }
