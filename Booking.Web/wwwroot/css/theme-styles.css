@@ -1,0 +1,146 @@
+/* Theme-specific styles and transitions */
+
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+.theme-transition * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Theme Toggle Container */
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-container:hover {
+    background-color: var(--bs-tertiary-bg);
+    border-color: var(--bs-primary);
+}
+
+/* Theme Icons */
+.theme-icon {
+    font-size: 1rem;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: var(--bs-body-color);
+}
+
+.theme-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Light theme icon styles */
+[data-bs-theme="light"] .light-icon {
+    color: #ffc107;
+    opacity: 1;
+}
+
+[data-bs-theme="light"] .dark-icon {
+    color: #6c757d;
+    opacity: 0.5;
+}
+
+/* Dark theme icon styles */
+[data-bs-theme="dark"] .light-icon {
+    color: #6c757d;
+    opacity: 0.5;
+}
+
+[data-bs-theme="dark"] .dark-icon {
+    color: #ffc107;
+    opacity: 1;
+}
+
+/* Enhanced toggle switch */
+#themeToggle {
+    border: 2px solid var(--bs-primary);
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+#themeToggle:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+#themeToggle:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Custom styles for light theme */
+.theme-light {
+    --custom-bg-primary: #ffffff;
+    --custom-bg-secondary: #f8f9fa;
+    --custom-text-primary: #212529;
+    --custom-border-color: #dee2e6;
+}
+
+/* Custom styles for dark theme */
+.theme-dark {
+    --custom-bg-primary: #212529;
+    --custom-bg-secondary: #343a40;
+    --custom-text-primary: #ffffff;
+    --custom-border-color: #495057;
+}
+
+/* Smooth transitions for theme changes */
+html[data-bs-theme] {
+    transition: color-scheme 0.3s ease;
+}
+
+/* Loading spinner theme adaptation */
+.spinner {
+    filter: var(--bs-theme) === 'dark' ? invert(1) : invert(0);
+}
+
+/* Error pages theme adaptation */
+.error-template {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* DataTables theme adaptation */
+.dataTables_wrapper {
+    color: var(--bs-body-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--bs-body-color) !important;
+    background: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+}
+
+/* Toast notifications theme adaptation */
+.toast {
+    background-color: var(--bs-body-bg) !important;
+    color: var(--bs-body-color) !important;
+    border: 1px solid var(--bs-border-color) !important;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .theme-transition,
+    .theme-transition *,
+    .theme-icon,
+    #themeToggle {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .theme-toggle-container {
+        border: 2px solid var(--bs-border-color);
+    }
+    
+    .theme-icon {
+        filter: contrast(2);
+    }
+}

@@ -1,0 +1,354 @@
+@{
+    ViewData["Title"] = "Bad Request - 400";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+            <div class="error-template">
+                <!-- Animated 400 -->
+                <div class="error-code-container mb-4">
+                    <h1 class="error-code display-1 text-danger fw-bold">
+                        4<span class="text-warning">0</span>0
+                    </h1>
+                </div>
+                
+                <div class="error-content">
+                    <h2 class="mb-3 text-dark">Bad Request</h2>
+                    <p class="lead text-muted mb-4">
+                        The request you sent was invalid or malformed. Please check your input and try again.
+                    </p>
+                    
+                    @if (ViewBag.RequestedUrl != null)
+                    {
+                        <div class="alert alert-warning">
+                            <strong>Requested URL:</strong> <code>@ViewBag.RequestedUrl</code>
+                        </div>
+                    }
+
+                    <!-- Common Issues and Solutions -->
+                    <div class="troubleshooting-section mb-4">
+                        <h5 class="text-dark mb-3">Common causes and solutions:</h5>
+                        <div class="row text-start">
+                            <div class="col-md-6">
+                                <div class="issue-card">
+                                    <h6 class="text-primary">
+                                        <i class="bi bi-exclamation-circle me-2"></i>Form Validation
+                                    </h6>
+                                    <ul class="list-unstyled small text-muted">
+                                        <li>• Check all required fields are filled</li>
+                                        <li>• Ensure data formats are correct (dates, emails, etc.)</li>
+                                        <li>• Verify file uploads meet size/type requirements</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="issue-card">
+                                    <h6 class="text-info">
+                                        <i class="bi bi-shield-exclamation me-2"></i>Security Token
+                                    </h6>
+                                    <ul class="list-unstyled small text-muted">
+                                        <li>• Your session may have expired</li>
+                                        <li>• Try refreshing the page</li>
+                                        <li>• Clear browser cache and cookies</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row text-start mt-3">
+                            <div class="col-md-6">
+                                <div class="issue-card">
+                                    <h6 class="text-success">
+                                        <i class="bi bi-calendar-x me-2"></i>Date/Time Issues
+                                    </h6>
+                                    <ul class="list-unstyled small text-muted">
+                                        <li>• Check-in date must be in the future</li>
+                                        <li>• Check-out date must be after check-in</li>
+                                        <li>• Ensure date format is correct</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="issue-card">
+                                    <h6 class="text-warning">
+                                        <i class="bi bi-upload me-2"></i>File Upload Issues
+                                    </h6>
+                                    <ul class="list-unstyled small text-muted">
+                                        <li>• File size exceeds limit (5MB max)</li>
+                                        <li>• Unsupported file format</li>
+                                        <li>• Network connection interrupted</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions mb-4">
+                        <h5 class="text-dark mb-3">What you can do:</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="action-card h-100">
+                                    <i class="bi bi-arrow-clockwise text-primary fs-1 mb-2"></i>
+                                    <h6>Refresh Page</h6>
+                                    <p class="small text-muted">Reload the page to get a fresh start</p>
+                                    <button onclick="location.reload()" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="action-card h-100">
+                                    <i class="bi bi-arrow-left text-info fs-1 mb-2"></i>
+                                    <h6>Go Back</h6>
+                                    <p class="small text-muted">Return to the previous page</p>
+                                    <button onclick="history.back()" class="btn btn-outline-info btn-sm">
+                                        <i class="bi bi-arrow-left me-1"></i>Go Back
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="action-card h-100">
+                                    <i class="bi bi-house text-success fs-1 mb-2"></i>
+                                    <h6>Start Over</h6>
+                                    <p class="small text-muted">Go to the homepage and try again</p>
+                                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-success btn-sm">
+                                        <i class="bi bi-house me-1"></i>Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Helpful Links -->
+                    <div class="helpful-links mb-4">
+                        <h6 class="text-muted mb-3">Need help? Try these:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-search text-primary me-2"></i>
+                                        <a href="@Url.Action("Index", "Home")#searchFilters" class="text-decoration-none">
+                                            Search for villas
+                                        </a>
+                                    </li>
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <li class="mb-2">
+                                            <i class="bi bi-calendar-check text-success me-2"></i>
+                                            <a href="@Url.Action("Index", "Booking")" class="text-decoration-none">
+                                                View your bookings
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="mb-2">
+                                            <i class="bi bi-person-plus text-info me-2"></i>
+                                            <a href="@Url.Action("Register", "Account")" class="text-decoration-none">
+                                                Create an account
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li class="mb-2">
+                                            <i class="bi bi-speedometer2 text-warning me-2"></i>
+                                            <a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none">
+                                                Admin Dashboard
+                                            </a>
+                                        </li>
+                                    }
+                                    <li class="mb-2">
+                                        <i class="bi bi-question-circle text-secondary me-2"></i>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#helpModal" class="text-decoration-none">
+                                            Get help
+                                        </a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-envelope text-danger me-2"></i>
+                                        <a href="mailto:support@yourdomain.com" class="text-decoration-none">
+                                            Contact Support
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Action Buttons -->
+                    <div class="action-buttons">
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg me-3">
+                            <i class="bi bi-house-door me-2"></i>Go Home
+                        </a>
+                        <button onclick="history.back()" class="btn btn-outline-secondary btn-lg me-3">
+                            <i class="bi bi-arrow-left me-2"></i>Go Back
+                        </button>
+                        <button onclick="location.reload()" class="btn btn-outline-info btn-lg">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="bi bi-question-circle-fill text-primary me-2"></i>Need Help?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>If you're experiencing this error repeatedly:</strong></p>
+                <ol>
+                    <li>Clear your browser cache and cookies</li>
+                    <li>Disable browser extensions temporarily</li>
+                    <li>Try using a different browser</li>
+                    <li>Check your internet connection</li>
+                    <li>Contact our support team if the issue persists</li>
+                </ol>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>For faster support:</strong> Include the URL you were trying to access and describe what you were doing when this error occurred.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="mailto:support@yourdomain.com?subject=Bad Request Error (400)&body=I encountered a 400 error at: @ViewBag.RequestedUrl" 
+                   class="btn btn-primary">
+                    <i class="bi bi-envelope me-1"></i>Email Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-template {
+        padding: 40px 15px;
+        min-height: 70vh;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        font-weight: 900;
+    }
+    
+    .error-code-container {
+        position: relative;
+    }
+    
+    .error-code-container::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(45deg, #dc3545, #fd7e14);
+        opacity: 0.1;
+        border-radius: 50%;
+        z-index: -1;
+    }
+    
+    .troubleshooting-section, .quick-actions, .helpful-links {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .issue-card, .action-card {
+        background: white;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .issue-card:hover, .action-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .action-card {
+        text-align: center;
+        border: 1px solid #e9ecef;
+    }
+    
+    .action-buttons .btn {
+        margin: 5px;
+        transition: transform 0.2s;
+    }
+    
+    .action-buttons .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+   /*  @@media (max-width: 768px) {
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .action-buttons .btn {
+            margin: 5px 0;
+            width: 100%;
+        }
+        
+        .troubleshooting-section .row,
+        .quick-actions .row,
+        .helpful-links .row {
+            margin: 0;
+        }
+    } */
+    
+    /* Animation for error icon */
+    .error-code {
+        animation: shake 3s infinite;
+    }
+  /*   
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-2px); }
+        75% { transform: translateX(2px); }
+    } */
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add interactive behavior for action cards
+        const actionCards = document.querySelectorAll('.action-card');
+        actionCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            });
+        });
+        
+        // Auto-focus on the refresh button after a delay
+        setTimeout(() => {
+            const refreshBtn = document.querySelector('button[onclick="location.reload()"]');
+            if (refreshBtn) {
+                refreshBtn.focus();
+            }
+        }, 1000);
+    });
+</script>

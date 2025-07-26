@@ -36,6 +36,21 @@ namespace Booking.Web.Controllers
             return View();
         }
 
+        [Route("Error/400")]
+        public IActionResult BadRequest()
+        {
+            var requestedUrl = HttpContext.Request.Path;
+            var userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+            
+            _logger.LogWarning("400 Bad Request: {RequestedUrl} from {UserAgent}", 
+                requestedUrl, userAgent);
+            
+            ViewBag.RequestedUrl = requestedUrl;
+            Response.StatusCode = 400;
+            
+            return View();
+        }
+
         [Route("Error/{statusCode:int}")]
         public IActionResult HandleStatusCode(int statusCode)
         {
@@ -50,8 +65,9 @@ namespace Booking.Web.Controllers
 
             return statusCode switch
             {
-                404 => View("NotFound"),
+                400 => View("BadRequest"),
                 403 => View("Forbidden"),
+                404 => View("NotFound"),
                 500 => View("InternalServerError"),
                 _ => View("Index")
             };
