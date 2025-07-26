@@ -1,5 +1,4 @@
-﻿
-using Booking.Domain.Entities;
+﻿using Booking.Domain.Entities;
 
 namespace Booking.Application.Services.Interface
 {
@@ -13,5 +12,12 @@ namespace Booking.Application.Services.Interface
 
         IEnumerable<Villa> GetVillasAvailabilityByDate(int nights, DateOnly checkInDate);
         bool IsVillaAvailableByDate(int villaId, int nights, DateOnly checkInDate);
+        
+        // Search methods
+        IEnumerable<Villa> SearchVillas(string? searchTerm, double? minPrice, double? maxPrice, 
+                                       int? minOccupancy, int? maxOccupancy);
+        IEnumerable<Villa> SearchVillasWithAvailability(string? searchTerm, double? minPrice, double? maxPrice, 
+                                                       int? minOccupancy, int? maxOccupancy, 
+                                                       int nights, DateOnly checkInDate);
     }
 }

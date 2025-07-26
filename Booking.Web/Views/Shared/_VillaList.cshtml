@@ -1,69 +1,127 @@
 ﻿@model HomeVM
 <div id="VillasList">
-    <!-- Villas Grid -->
-    <div class="row">
-        @foreach (var villa in Model.VillaList.Items)
-        {
-            <div class="col-12 col-lg-6 mb-4">
-                <div class="card h-100" style="border-radius:5px; border: 1px solid #aaa">
-                    <div class="row g-0 h-100">
-                        <div class="col-4">
-                            <img class="img-fluid h-100 object-fit-cover" 
-                                 style="border-radius:5px 0 0 5px;" 
-                                 src="@villa.ImageUrl" 
-                                 alt="@villa.Name">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body d-flex flex-column h-100">
-                                <!-- Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="card-title text-warning mb-0">@villa.Name</h5>
-                                    <button type="button" class="btn btn-sm btn-outline-success" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target='#exampleModal-@(villa.Id)'>
-                                        Details
-                                    </button>
-                                </div>
-                                
-                                <!-- Description -->
-                                <div class="card-text flex-grow-1 mb-3">
-                                    @Html.Raw(villa.Description)
-                                </div>
-                                
-                                <!-- Footer section -->
-                                <div class="mt-auto">
-                                    <div class="row align-items-center">
-                                        <div class="col-12 col-md-4 mb-2 mb-md-0">
-                                            @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
-                                            {
-                                                if (villa.IsAvailable)
+    <!-- Search Results Summary -->
+    @if (Model.HasActiveFilters)
+    {
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-filter me-2"></i>
+                <strong>@Model.VillaList.TotalCount</strong> villa(s) found matching your search criteria
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <span class="badge bg-primary ms-2">@Model.SearchTerm</span>
+                }
+                @if (Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+                {
+                    <span class="badge bg-success ms-1">
+                        $@(Model.MinPrice?.ToString("0") ?? "0") - $@(Model.MaxPrice?.ToString("0") ?? "∞")
+                    </span>
+                }
+                @if (Model.MinOccupancy.HasValue || Model.MaxOccupancy.HasValue)
+                {
+                    <span class="badge bg-warning ms-1">
+                        @(Model.MinOccupancy?.ToString() ?? "1")+ - @(Model.MaxOccupancy?.ToString() ?? "∞") guests
+                    </span>
+                }
+                @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
+                {
+                    <span class="badge bg-info ms-1">
+                        Available from @Model.CheckInDate.ToString("MMM dd, yyyy")
+                    </span>
+                }
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSearch()">
+                <i class="bi bi-x"></i> Clear Filters
+            </button>
+        </div>
+    }
+
+    <!-- No Results Message -->
+    @if (!Model.VillaList.Items.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-house-x display-1 text-muted"></i>
+            <h3 class="text-muted mt-3">No villas found</h3>
+            @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
+            {
+                <p class="text-muted">No villas are available for your selected dates and search criteria.</p>
+            }
+            else
+            {
+                <p class="text-muted">Try adjusting your search criteria or clear the filters to see all villas.</p>
+            }
+            <button type="button" class="btn btn-primary" onclick="clearSearch()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Show All Villas
+            </button>
+        </div>
+    }
+    else
+    {
+        <!-- Villas Grid -->
+        <div class="row">
+            @foreach (var villa in Model.VillaList.Items)
+            {
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100" style="border-radius:5px; border: 1px solid #aaa">
+                        <div class="row g-0 h-100">
+                            <div class="col-4">
+                                <img class="img-fluid h-100 object-fit-cover" 
+                                     style="border-radius:5px 0 0 5px;" 
+                                     src="@villa.ImageUrl" 
+                                     alt="@villa.Name">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <!-- Header -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title text-warning mb-0">@villa.Name</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-success" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target='#exampleModal-@(villa.Id)'>
+                                            Details
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Description -->
+                                    <div class="card-text flex-grow-1 mb-3">
+                                        @Html.Raw(villa.Description)
+                                    </div>
+                                    
+                                    <!-- Footer section -->
+                                    <div class="mt-auto">
+                                        <div class="row align-items-center">
+                                            <div class="col-12 col-md-4 mb-2 mb-md-0">
+                                                @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
                                                 {
-                                                    <a asp-controller="Booking" asp-action="FinalizeBooking"
-                                                       asp-route-villaId="@villa.Id" 
-                                                       asp-route-checkInDate="@Model.CheckInDate"
-                                                       asp-route-nights="@Model.Nights"
-                                                       class="btn btn-success w-100">
-                                                        Book Now
-                                                    </a>
+                                                    if (villa.IsAvailable)
+                                                    {
+                                                        <a asp-controller="Booking" asp-action="FinalizeBooking"
+                                                           asp-route-villaId="@villa.Id" 
+                                                           asp-route-checkInDate="@Model.CheckInDate"
+                                                           asp-route-nights="@Model.Nights"
+                                                           class="btn btn-success w-100">
+                                                            Book Now
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-outline-danger w-100" disabled>
+                                                            Sold Out
+                                                        </button>
+                                                    }
                                                 }
-                                                else
-                                                {
-                                                    <button class="btn btn-outline-danger w-100" disabled>
-                                                        Sold Out
-                                                    </button>
-                                                }
-                                            }
-                                        </div>
-                                        <div class="col-12 col-md-4 mb-2 mb-md-0">
-                                            <small class="text-muted">
-                                                <i class="bi bi-people"></i> @villa.Occupancy adults<br>
-                                                <i class="bi bi-house"></i> @villa.SquareFeet sqft
-                                            </small>
-                                        </div>
-                                        <div class="col-12 col-md-4 text-md-end">
-                                            <span class="text-warning fw-bold fs-5">
-                                                USD <span class="border-bottom border-warning">@villa.Price.ToString("c")</span>
-                                            </span>
+                                            </div>
+                                            <div class="col-12 col-md-4 mb-2 mb-md-0">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-people"></i> @villa.Occupancy adults<br>
+                                                    <i class="bi bi-house"></i> @villa.SquareFeet sqft
+                                                </small>
+                                            </div>
+                                            <div class="col-12 col-md-4 text-md-end">
+                                                <span class="text-warning fw-bold fs-5">
+                                                    USD <span class="border-bottom border-warning">@villa.Price.ToString("c")</span>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -71,118 +129,125 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Modal remains the same but with improved structure -->
-            <div class="modal fade" id="exampleModal-@(villa.Id)" tabindex="-1" aria-labelledby="exampleModalLabel-@villa.Id" aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-3 text-success" id="exampleModalLabel-@villa.Id">Villa Details</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <partial name="_VillaDetail" model="@villa" />
-                        </div>
-                        <div class="modal-footer">
-                            <button asp-controller="Home" asp-action="GeneratePPTExport"
-                                    asp-route-id="@villa.Id" type="submit" 
-                                    class="btn btn-outline-warning">
-                                <i class="bi bi-file-earmark-ppt"></i> Download Villa PPT
-                            </button>
-                            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                <!-- Modal remains the same -->
+                <div class="modal fade" id="exampleModal-@(villa.Id)" tabindex="-1" aria-labelledby="exampleModalLabel-@villa.Id" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-3 text-success" id="exampleModalLabel-@villa.Id">Villa Details</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <partial name="_VillaDetail" model="@villa" />
+                            </div>
+                            <div class="modal-footer">
+                                <button asp-controller="Home" asp-action="GeneratePPTExport"
+                                        asp-route-id="@villa.Id" type="submit" 
+                                        class="btn btn-outline-warning">
+                                    <i class="bi bi-file-earmark-ppt"></i> Download Villa PPT
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+            }
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (Model.VillaList.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted">
+                    Showing @((Model.VillaList.PageIndex - 1) * Model.VillaList.PageSize + 1) to 
+                    @(Math.Min(Model.VillaList.PageIndex * Model.VillaList.PageSize, Model.VillaList.TotalCount)) 
+                    of @Model.VillaList.TotalCount villas
+                </div>
+                
+                <nav aria-label="Villa pagination">
+                    <ul class="pagination mb-0">
+                        <!-- Previous Button -->
+                        <li class="page-item @(!Model.VillaList.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link" href="#" 
+                               onclick="loadPageWithSearch(@(Model.VillaList.PageIndex - 1))">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        @{
+                            int startPage = Math.Max(1, Model.VillaList.PageIndex - 2);
+                            int endPage = Math.Min(Model.VillaList.TotalPages, Model.VillaList.PageIndex + 2);
+                        }
+
+                        @if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="loadPageWithSearch(1)">1</a>
+                            </li>
+                            @if (startPage > 2)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                        }
+
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.VillaList.PageIndex ? "active" : "")">
+                                <a class="page-link" href="#" onclick="loadPageWithSearch(@i)">@i</a>
+                            </li>
+                        }
+
+                        @if (endPage < Model.VillaList.TotalPages)
+                        {
+                            @if (endPage < Model.VillaList.TotalPages - 1)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="loadPageWithSearch(@Model.VillaList.TotalPages)">@Model.VillaList.TotalPages</a>
+                            </li>
+                        }
+
+                        <!-- Next Button -->
+                        <li class="page-item @(!Model.VillaList.HasNextPage ? "disabled" : "")">
+                            <a class="page-link" href="#" 
+                               onclick="loadPageWithSearch(@(Model.VillaList.PageIndex + 1))">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         }
-    </div>
-
-    <!-- Pagination Controls -->
-    @if (Model.VillaList.TotalPages > 1)
-    {
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <div class="text-muted">
-                Showing @((Model.VillaList.PageIndex - 1) * Model.VillaList.PageSize + 1) to 
-                @(Math.Min(Model.VillaList.PageIndex * Model.VillaList.PageSize, Model.VillaList.TotalCount)) 
-                of @Model.VillaList.TotalCount villas
-            </div>
-            
-            <nav aria-label="Villa pagination">
-                <ul class="pagination mb-0">
-                    <!-- Previous Button -->
-                    <li class="page-item @(!Model.VillaList.HasPreviousPage ? "disabled" : "")">
-                        <a class="page-link" href="#" 
-                           onclick="loadPage(@(Model.VillaList.PageIndex - 1), @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">
-                            <i class="bi bi-chevron-left"></i> Previous
-                        </a>
-                    </li>
-
-                    <!-- Page Numbers -->
-                    @{
-                        int startPage = Math.Max(1, Model.VillaList.PageIndex - 2);
-                        int endPage = Math.Min(Model.VillaList.TotalPages, Model.VillaList.PageIndex + 2);
-                    }
-
-                    @if (startPage > 1)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="#" onclick="loadPage(1, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">1</a>
-                        </li>
-                        @if (startPage > 2)
-                        {
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                        }
-                    }
-
-                    @for (int i = startPage; i <= endPage; i++)
-                    {
-                        <li class="page-item @(i == Model.VillaList.PageIndex ? "active" : "")">
-                            <a class="page-link" href="#" onclick="loadPage(@i, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">@i</a>
-                        </li>
-                    }
-
-                    @if (endPage < Model.VillaList.TotalPages)
-                    {
-                        @if (endPage < Model.VillaList.TotalPages - 1)
-                        {
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
-                        }
-                        <li class="page-item">
-                            <a class="page-link" href="#" onclick="loadPage(@Model.VillaList.TotalPages, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">@Model.VillaList.TotalPages</a>
-                        </li>
-                    }
-
-                    <!-- Next Button -->
-                    <li class="page-item @(!Model.VillaList.HasNextPage ? "disabled" : "")">
-                        <a class="page-link" href="#" 
-                           onclick="loadPage(@(Model.VillaList.PageIndex + 1), @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">
-                            Next <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
     }
 </div>
 
 <script>
-function loadPage(page, nights, checkInDate) {
+function loadPageWithSearch(page) {
+    const searchData = {
+        page: page,
+        nights: $('#Nights').val(),
+        checkInDate: $('#CheckInDate').val(),
+        searchTerm: $('#searchTerm').val(),
+        minPrice: $('#minPrice').val() || null,
+        maxPrice: $('#maxPrice').val() || null,
+        minOccupancy: $('#minOccupancy').val() || null,
+        maxOccupancy: $('#maxOccupancy').val() || null
+    };
+    
     // Show loading indicator
     $('#VillasList').html('<div class="text-center p-4"><div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div></div>');
     
     $.ajax({
         url: '@Url.Action("LoadPage", "Home")',
         type: 'GET',
-        data: {
-            page: page,
-            nights: nights,
-            checkInDate: checkInDate
-        },
+        data: searchData,
         success: function(result) {
             $('#VillasList').html(result);
         },
@@ -190,5 +255,24 @@ function loadPage(page, nights, checkInDate) {
             $('#VillasList').html('<div class="alert alert-danger">Error loading villas. Please try again.</div>');
         }
     });
+}
+
+function clearSearch() {
+    // Clear search inputs in the search form
+    $('#searchTerm').val('');
+    $('#minPrice').val('');
+    $('#maxPrice').val('');
+    $('#minOccupancy').val('');
+    $('#maxOccupancy').val('');
+    
+    // Trigger search update
+    if (typeof updateSearchFilters === 'function') {
+        updateSearchFilters();
+    }
+    
+    // Perform search with cleared filters
+    if (typeof performSearch === 'function') {
+        performSearch();
+    }
 }
 </script>

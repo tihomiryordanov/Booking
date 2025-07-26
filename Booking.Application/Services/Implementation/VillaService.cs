@@ -1,6 +1,4 @@
-﻿
-
-using Booking.Application.Common.Interfaces;
+﻿using Booking.Application.Common.Interfaces;
 using Booking.Application.Common.Utility;
 using Booking.Application.Services.Interface;
 using Booking.Domain.Entities;
@@ -10,7 +8,6 @@ namespace Booking.Application.Services.Implementation
 {
     public class VillaService : IVillaService
     {
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -135,6 +132,59 @@ namespace Booking.Application.Services.Implementation
 
             _unitOfWork.VillaRepository.Update(villa);
             _unitOfWork.Save();
+        }
+
+        public IEnumerable<Villa> SearchVillas(string? searchTerm, double? minPrice, double? maxPrice, 
+                                              int? minOccupancy, int? maxOccupancy)
+        {
+            var villas = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity").AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                villas = villas.Where(v => v.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                          (!string.IsNullOrEmpty(v.Description) && 
+                                           v.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            if (minPrice.HasValue)
+            {
+                villas = villas.Where(v => v.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                villas = villas.Where(v => v.Price <= maxPrice.Value);
+            }
+
+            if (minOccupancy.HasValue)
+            {
+                villas = villas.Where(v => v.Occupancy >= minOccupancy.Value);
+            }
+
+            if (maxOccupancy.HasValue)
+            {
+                villas = villas.Where(v => v.Occupancy <= maxOccupancy.Value);
+            }
+
+            return villas.ToList();
+        }
+
+        public IEnumerable<Villa> SearchVillasWithAvailability(string? searchTerm, double? minPrice, double? maxPrice, 
+                                                              int? minOccupancy, int? maxOccupancy, 
+                                                              int nights, DateOnly checkInDate)
+        {
+            var filteredVillas = SearchVillas(searchTerm, minPrice, maxPrice, minOccupancy, maxOccupancy).ToList();
+            var villaNumbersList = _unitOfWork.VillaNumberRepository.GetAll().ToList();
+            var bookedVillas = _unitOfWork.BookingRepository.GetAll(u => u.Status == SD.StatusApproved ||
+                                                                        u.Status == SD.StatusCheckedIn).ToList();
+
+            foreach (var villa in filteredVillas)
+            {
+                int roomAvailable = SD.VillaRoomsAvailable_Count(villa.Id, villaNumbersList, checkInDate, nights, bookedVillas);
+                villa.IsAvailable = roomAvailable > 0;
+            }
+
+            return filteredVillas;
         }
     }
 }

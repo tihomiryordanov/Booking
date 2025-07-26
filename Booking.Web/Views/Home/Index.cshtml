@@ -24,11 +24,13 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-    <form method="post"
-          asp-action="GetVillasByDate">
-        <div class="row p-0 mx-0 py-4">
 
-            <div class="col-12 col-md-5  offset-md-1 pl-2  pr-2 pr-md-0">
+    <!-- Include the search component first -->
+    <partial name="_VillaSearch" model="@Model" />
+
+    <form method="post" asp-action="CheckAvailabilityWithFilters" id="availabilityForm">
+        <div class="row p-0 mx-0 py-4">
+            <div class="col-12 col-md-5 offset-md-1 pl-2 pr-2 pr-md-0">
                 <div class="form-group">
                     <label>Check In Date</label>
                     <input asp-for="CheckInDate" type="date" class="form-control" />
@@ -49,31 +51,60 @@
 
             <div class="col-4 col-md-2 pt-4 pr-2">
                 <div class="form-group">
-                    <button type="button" onclick="fnLoadVillaList()" class="btn btn-success btn-block">
-                        <i class="bi bi-search"></i>  &nbsp; Check Availability
+                    <button type="button" onclick="fnLoadVillaListWithFilters()" class="btn btn-success btn-block">
+                        <i class="bi bi-search"></i> &nbsp; Check Availability
                     </button>
-
                 </div>
             </div>
-
         </div>
-        <partial name="_VillaList" model="Model" />
+
+        <!-- Hidden fields to maintain search filters (populated by _VillaSearch) -->
+        <input type="hidden" asp-for="SearchTerm" />
+        <input type="hidden" asp-for="MinPrice" />
+        <input type="hidden" asp-for="MaxPrice" />
+        <input type="hidden" asp-for="MinOccupancy" />
+        <input type="hidden" asp-for="MaxOccupancy" />
+        <input type="hidden" asp-for="CurrentPage" value="1" />
     </form>
+
+    <!-- Villa list will be loaded here -->
+    <partial name="_VillaList" model="@Model" />
 </div>
 
 @section scripts {
     <script>
-        function fnLoadVillaList() {
+        function fnLoadVillaListWithFilters() {
             $('.spinner').show();
+            
+            // Get current search filter values from the search form
+            const searchTerm = $('#searchTerm').val();
+            const minPrice = $('#minPrice').val();
+            const maxPrice = $('#maxPrice').val();
+            const minOccupancy = $('#minOccupancy').val();
+            const maxOccupancy = $('#maxOccupancy').val();
+            
+            // Update the main form's hidden fields
+            $('input[name="SearchTerm"]').val(searchTerm);
+            $('input[name="MinPrice"]').val(minPrice);
+            $('input[name="MaxPrice"]').val(maxPrice);
+            $('input[name="MinOccupancy"]').val(minOccupancy);
+            $('input[name="MaxOccupancy"]').val(maxOccupancy);
+
             var objData = {
                 checkInDate: $("#CheckInDate").val(),
-                nights: $("#Nights").val()
+                nights: $("#Nights").val(),
+                searchTerm: searchTerm,
+                minPrice: minPrice || null,
+                maxPrice: maxPrice || null,
+                minOccupancy: minOccupancy || null,
+                maxOccupancy: maxOccupancy || null,
+                currentPage: 1
             };
 
-        $.ajax({
+            $.ajax({
                 type: "POST",
-                data:objData,
-                url: "@Url.Action("GetVillasByDate", "Home")",
+                data: objData,
+                url: "@Url.Action("CheckAvailabilityWithFilters", "Home")",
                 success: function (data) {
                     $("#VillasList").empty();
                     $("#VillasList").html(data);
@@ -88,6 +119,11 @@
                     alert(response.responseText);
                 }
             });
+        }
+
+        // Legacy function for backward compatibility (calls the new function)
+        function fnLoadVillaList() {
+            fnLoadVillaListWithFilters();
         }
     </script>
 }

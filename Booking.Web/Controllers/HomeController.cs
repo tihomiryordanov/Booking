@@ -16,7 +16,6 @@ namespace Booking.Web.Controllers
     {
         private readonly IVillaService _villaService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private const int PageSize = 4;
 
         public HomeController(IVillaService villaService, IWebHostEnvironment webHostEnvironment)
         {
@@ -24,10 +23,22 @@ namespace Booking.Web.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index(int page = 1)
+        public IActionResult Index(int page = 1, string? searchTerm = null, double? minPrice = null, 
+                                  double? maxPrice = null, int? minOccupancy = null, int? maxOccupancy = null)
         {
-            var allVillas = _villaService.GetAllVillas();
-            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(allVillas, page, PageSize);
+            IEnumerable<Domain.Entities.Villa> villas;
+
+            if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 
+                minOccupancy.HasValue || maxOccupancy.HasValue)
+            {
+                villas = _villaService.SearchVillas(searchTerm, minPrice, maxPrice, minOccupancy, maxOccupancy);
+            }
+            else
+            {
+                villas = _villaService.GetAllVillas();
+            }
+
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, SD.PageSize);
 
             HomeVM homeVM = new()
             {
@@ -35,16 +46,36 @@ namespace Booking.Web.Controllers
                 Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
                 CurrentPage = page,
-                PageSize = PageSize
+                PageSize = SD.PageSize,
+                SearchTerm = searchTerm,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                MinOccupancy = minOccupancy,
+                MaxOccupancy = maxOccupancy
             };
             return View(homeVM);
         }
 
         [HttpPost]
-        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate, int page = 1)
+        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate, int page = 1,
+                                           string? searchTerm = null, double? minPrice = null, 
+                                           double? maxPrice = null, int? minOccupancy = null, int? maxOccupancy = null)
         {
-            var villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate);
-            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, PageSize);
+            IEnumerable<Domain.Entities.Villa> villas;
+
+            // Always apply search filters first, then check availability
+            if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 
+                minOccupancy.HasValue || maxOccupancy.HasValue)
+            {
+                villas = _villaService.SearchVillasWithAvailability(searchTerm, minPrice, maxPrice, 
+                                                                   minOccupancy, maxOccupancy, nights, checkInDate);
+            }
+            else
+            {
+                villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate);
+            }
+
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, SD.PageSize);
 
             HomeVM homeVM = new()
             {
@@ -52,22 +83,40 @@ namespace Booking.Web.Controllers
                 VillaList = paginatedVillas,
                 Nights = nights,
                 CurrentPage = page,
-                PageSize = PageSize
+                PageSize = SD.PageSize,
+                SearchTerm = searchTerm,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                MinOccupancy = minOccupancy,
+                MaxOccupancy = maxOccupancy
             };
 
             return PartialView("_VillaList", homeVM);
         }
 
         [HttpGet]
-        public IActionResult LoadPage(int page, int nights, DateOnly? checkInDate)
+        public IActionResult LoadPage(int page, int nights, DateOnly? checkInDate,
+                                     string? searchTerm = null, double? minPrice = null, 
+                                     double? maxPrice = null, int? minOccupancy = null, int? maxOccupancy = null)
         {
             HomeVM homeVM;
+            IEnumerable<Domain.Entities.Villa> villas;
 
             if (checkInDate.HasValue && checkInDate > DateOnly.FromDateTime(DateTime.Now))
             {
-                // Load filtered villas by date with pagination
-                var villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate.Value);
-                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, PageSize);
+                // Load filtered villas by date with search
+                if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 
+                    minOccupancy.HasValue || maxOccupancy.HasValue)
+                {
+                    villas = _villaService.SearchVillasWithAvailability(searchTerm, minPrice, maxPrice, 
+                                                                       minOccupancy, maxOccupancy, nights, checkInDate.Value);
+                }
+                else
+                {
+                    villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate.Value);
+                }
+
+                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, SD.PageSize);
 
                 homeVM = new()
                 {
@@ -75,14 +124,28 @@ namespace Booking.Web.Controllers
                     VillaList = paginatedVillas,
                     Nights = nights,
                     CurrentPage = page,
-                    PageSize = PageSize
+                    PageSize = SD.PageSize,
+                    SearchTerm = searchTerm,
+                    MinPrice = minPrice,
+                    MaxPrice = maxPrice,
+                    MinOccupancy = minOccupancy,
+                    MaxOccupancy = maxOccupancy
                 };
             }
             else
             {
-                // Load all villas with pagination
-                var allVillas = _villaService.GetAllVillas();
-                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(allVillas, page, PageSize);
+                // Load all villas with search
+                if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 
+                    minOccupancy.HasValue || maxOccupancy.HasValue)
+                {
+                    villas = _villaService.SearchVillas(searchTerm, minPrice, maxPrice, minOccupancy, maxOccupancy);
+                }
+                else
+                {
+                    villas = _villaService.GetAllVillas();
+                }
+
+                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, SD.PageSize);
 
                 homeVM = new()
                 {
@@ -90,11 +153,59 @@ namespace Booking.Web.Controllers
                     Nights = nights,
                     CheckInDate = checkInDate ?? DateOnly.FromDateTime(DateTime.Now),
                     CurrentPage = page,
-                    PageSize = PageSize
+                    PageSize = SD.PageSize,
+                    SearchTerm = searchTerm,
+                    MinPrice = minPrice,
+                    MaxPrice = maxPrice,
+                    MinOccupancy = minOccupancy,
+                    MaxOccupancy = maxOccupancy
                 };
             }
 
             return PartialView("_VillaList", homeVM);
+        }
+
+        [HttpPost]
+        public IActionResult SearchVillas(HomeVM model)
+        {
+            model.CurrentPage = 1; // Reset to first page on new search
+            
+            IEnumerable<Domain.Entities.Villa> villas;
+
+            if (model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
+            {
+                villas = _villaService.SearchVillasWithAvailability(model.SearchTerm, model.MinPrice, model.MaxPrice,
+                                                                   model.MinOccupancy, model.MaxOccupancy, 
+                                                                   model.Nights, model.CheckInDate);
+            }
+            else
+            {
+                villas = _villaService.SearchVillas(model.SearchTerm, model.MinPrice, model.MaxPrice,
+                                                   model.MinOccupancy, model.MaxOccupancy);
+            }
+
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, 1, SD.PageSize);
+            model.VillaList = paginatedVillas;
+
+            return PartialView("_VillaList", model);
+        }
+
+        // Add new action to check availability with current search filters
+        [HttpPost]
+        public IActionResult CheckAvailabilityWithFilters(HomeVM model)
+        {
+            model.CurrentPage = 1; // Reset to first page
+
+            // Always check availability with current search filters
+            IEnumerable<Domain.Entities.Villa> villas = _villaService.SearchVillasWithAvailability(
+                model.SearchTerm, model.MinPrice, model.MaxPrice,
+                model.MinOccupancy, model.MaxOccupancy, 
+                model.Nights, model.CheckInDate);
+
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, 1, SD.PageSize);
+            model.VillaList = paginatedVillas;
+
+            return PartialView("_VillaList", model);
         }
 
         [HttpPost]

@@ -1,0 +1,136 @@
+@model HomeVM
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#searchFilters" aria-expanded="false" aria-controls="searchFilters">
+                <i class="bi bi-search me-2"></i>Search & Filter Villas
+                <i class="bi bi-chevron-down ms-2"></i>
+            </button>
+        </h5>
+    </div>
+    
+    <div class="collapse @(Model.HasActiveFilters ? "show" : "")" id="searchFilters">
+        <div class="card-body">
+            <div id="searchForm">
+                <div class="row g-3">
+                    <!-- Search Term -->
+                    <div class="col-md-6">
+                        <label class="form-label">Search by Name or Description</label>
+                        <input type="text" class="form-control" id="searchTerm" 
+                               value="@Model.SearchTerm" placeholder="Enter villa name or description..."
+                               onchange="updateSearchFilters()">
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">Min Price (USD)</label>
+                        <input type="number" class="form-control" id="minPrice" 
+                               value="@Model.MinPrice" placeholder="Min price" step="0.01"
+                               onchange="updateSearchFilters()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Price (USD)</label>
+                        <input type="number" class="form-control" id="maxPrice" 
+                               value="@Model.MaxPrice" placeholder="Max price" step="0.01"
+                               onchange="updateSearchFilters()">
+                    </div>
+                    
+                    <!-- Occupancy Range -->
+                    <div class="col-md-3">
+                        <label class="form-label">Min Occupancy</label>
+                        <input type="number" class="form-control" id="minOccupancy" 
+                               value="@Model.MinOccupancy" placeholder="Min guests" min="1"
+                               onchange="updateSearchFilters()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Max Occupancy</label>
+                        <input type="number" class="form-control" id="maxOccupancy" 
+                               value="@Model.MaxOccupancy" placeholder="Max guests" min="1"
+                               onchange="updateSearchFilters()">
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2 align-items-end h-100">
+                            <button type="button" class="btn btn-primary" onclick="performSearch()">
+                                <i class="bi bi-search me-1"></i>Search
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                <i class="bi bi-x-circle me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden inputs to store search filters for the main form -->
+<input type="hidden" id="hiddenSearchTerm" name="SearchTerm" value="@Model.SearchTerm">
+<input type="hidden" id="hiddenMinPrice" name="MinPrice" value="@Model.MinPrice">
+<input type="hidden" id="hiddenMaxPrice" name="MaxPrice" value="@Model.MaxPrice">
+<input type="hidden" id="hiddenMinOccupancy" name="MinOccupancy" value="@Model.MinOccupancy">
+<input type="hidden" id="hiddenMaxOccupancy" name="MaxOccupancy" value="@Model.MaxOccupancy">
+
+<script>
+function updateSearchFilters() {
+    // Update hidden fields whenever search filters change
+    $('#hiddenSearchTerm').val($('#searchTerm').val());
+    $('#hiddenMinPrice').val($('#minPrice').val());
+    $('#hiddenMaxPrice').val($('#maxPrice').val());
+    $('#hiddenMinOccupancy').val($('#minOccupancy').val());
+    $('#hiddenMaxOccupancy').val($('#maxOccupancy').val());
+}
+
+function performSearch() {
+    updateSearchFilters(); // Ensure hidden fields are updated
+    
+    const searchData = {
+        searchTerm: $('#searchTerm').val(),
+        minPrice: $('#minPrice').val() || null,
+        maxPrice: $('#maxPrice').val() || null,
+        minOccupancy: $('#minOccupancy').val() || null,
+        maxOccupancy: $('#maxOccupancy').val() || null,
+        nights: $('#Nights').val(),
+        checkInDate: $('#CheckInDate').val()
+    };
+    
+    // Show loading indicator
+    $('#VillasList').html('<div class="text-center p-4"><div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+    
+    $.ajax({
+        url: '@Url.Action("SearchVillas", "Home")',
+        type: 'POST',
+        data: searchData,
+        success: function(result) {
+            $('#VillasList').html(result);
+        },
+        error: function() {
+            $('#VillasList').html('<div class="alert alert-danger">Error searching villas. Please try again.</div>');
+        }
+    });
+}
+
+function clearSearch() {
+    // Clear all search inputs
+    $('#searchTerm').val('');
+    $('#minPrice').val('');
+    $('#maxPrice').val('');
+    $('#minOccupancy').val('');
+    $('#maxOccupancy').val('');
+    
+    // Update hidden fields
+    updateSearchFilters();
+    
+    // Perform search with cleared filters
+    performSearch();
+}
+
+// Update hidden fields on page load
+$(document).ready(function() {
+    updateSearchFilters();
+});
+</script>
