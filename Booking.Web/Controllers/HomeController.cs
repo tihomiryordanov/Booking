@@ -26,6 +26,11 @@ namespace Booking.Web.Controllers
         public IActionResult Index(int page = 1, string? searchTerm = null, double? minPrice = null, 
                                   double? maxPrice = null, int? minOccupancy = null, int? maxOccupancy = null)
         {
+            // return error page if the page number is invalid
+            if (page < 1)
+            {
+                return RedirectToAction(nameof(Error));
+            }
             IEnumerable<Domain.Entities.Villa> villas;
 
             if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 

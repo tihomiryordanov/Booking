@@ -66,7 +66,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // Enhanced Cookie Configuration with more flexible settings for payment flows
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.AccessDeniedPath = "/Error/AccessDenied";
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
     
@@ -138,11 +138,18 @@ SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Sync
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline with enhanced error handling
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error/Index");
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
     app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
+    // Still handle status codes in development for testing
+    app.UseStatusCodePagesWithReExecute("/Error/{0}");
 }
 
 // Security middleware pipeline
@@ -195,6 +202,13 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Catch-all route for 404 errors (should be last)
+app.MapFallback(context =>
+{
+    context.Response.Redirect("/Error/404");
+    return Task.CompletedTask;
+});
 
 SeedDatabase();
 app.Run();

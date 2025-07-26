@@ -1,0 +1,59 @@
+/* Error Pages Styling */
+.error-template {
+    padding: 40px 15px;
+    text-align: center;
+}
+
+.error-template h1 {
+    font-size: 8rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.error-template h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.error-template .lead {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.error-actions {
+    margin-top: 2rem;
+}
+
+.error-actions .btn {
+    margin: 0.25rem;
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .error-template h1 {
+        font-size: 4rem;
+    }
+    
+    .error-actions .btn {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+/* Animation for error icons */
+.error-icon-bounce {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
