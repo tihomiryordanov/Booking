@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Booking.Web.Controllers
 {
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize]
+    
     public class AmenityController : Controller
     {
         private readonly IAmenityService _amenityService;
@@ -41,6 +42,7 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken] // This attribute is used to validate the antiforgery token
         public IActionResult Create(AmenityVM obj)
         {
 
@@ -79,6 +81,7 @@ namespace Booking.Web.Controllers
 
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken] // This attribute is used to validate the antiforgery token
         public IActionResult Update(AmenityVM amenityVM)
         {
 
@@ -120,6 +123,7 @@ namespace Booking.Web.Controllers
 
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken] // This attribute is used to validate the antiforgery token
         public IActionResult Delete(AmenityVM amenityVM)
         {
             Amenity? objFromDb = _amenityService.GetAmenityById(amenityVM.Amenity.Id);

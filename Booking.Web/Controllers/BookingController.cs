@@ -16,6 +16,8 @@ using System.Security.Claims;
 
 namespace Booking.Web.Controllers
 {
+    [Authorize]
+   
     
     public class BookingController : Controller
     {
@@ -72,6 +74,7 @@ namespace Booking.Web.Controllers
 
         [Authorize]
         [HttpPost]
+        [AutoValidateAntiforgeryToken]
         public IActionResult FinalizeBooking(BookingTable booking)
         {
             var villa = _villaService.GetVillaById(booking.VillaId);
@@ -154,6 +157,7 @@ namespace Booking.Web.Controllers
 
         [HttpPost]
         [Authorize]
+        [AutoValidateAntiforgeryToken]
         public IActionResult GenerateInvoice(int id, string downloadType)
         {
             string basePath = _webHostEnvironment.WebRootPath;
@@ -288,6 +292,7 @@ namespace Booking.Web.Controllers
 
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin)]
+        [AutoValidateAntiforgeryToken]
         public IActionResult CheckIn(BookingTable booking)
         {
             _bookingService.UpdateStatus(booking.Id, SD.StatusCheckedIn, booking.VillaNumber);
@@ -305,6 +310,7 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken]
         [Authorize(Roles = SD.Role_Admin)]
         public IActionResult CancelBooking(BookingTable booking)
         {

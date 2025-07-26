@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Booking.Web.Controllers
 {
     [Authorize]
+    //add AntiforgeryToken to prevent CSRF attacks
+    
     public class VillaController : Controller
     {
         private readonly IVillaService _villaService;
@@ -29,6 +31,7 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken] // This attribute is used to validate the antiforgery token
         public IActionResult Create(Villa obj)
         {
 
@@ -57,6 +60,7 @@ namespace Booking.Web.Controllers
         }
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken] // This attribute is used to validate the antiforgery token
         public IActionResult Update(Villa obj)
         {
             if (ModelState.IsValid && obj.Id > 0)
@@ -81,6 +85,7 @@ namespace Booking.Web.Controllers
 
 
         [HttpPost]
+        [AutoValidateAntiforgeryToken]
         public IActionResult Delete(Villa obj)
         {
             bool deleted = _villaService.DeleteVilla(obj.Id);
