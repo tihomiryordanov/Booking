@@ -25,12 +25,12 @@ namespace Booking.Application.Services.Implementation
             if (villa.Image != null)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
-                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImage");
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\Villas");
 
                 using var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create);
                 villa.Image.CopyTo(fileStream);
 
-                villa.ImageUrl = @"\images\VillaImage\" + fileName;
+                villa.ImageUrl = @"\images\Villas\" + fileName;
             }
             else
             {
@@ -115,7 +115,7 @@ namespace Booking.Application.Services.Implementation
             if (villa.Image != null)
             {
                 string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
-                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImage");
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\Villas");
 
                 if (!string.IsNullOrEmpty(villa.ImageUrl))
                 {
@@ -130,7 +130,7 @@ namespace Booking.Application.Services.Implementation
                 using var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create);
                 villa.Image.CopyTo(fileStream);
 
-                villa.ImageUrl = @"\images\VillaImage\" + fileName;
+                villa.ImageUrl = @"\images\Villas\" + fileName;
             }
 
             _unitOfWork.VillaRepository.Update(villa);

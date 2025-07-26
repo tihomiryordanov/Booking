@@ -1,8 +1,8 @@
 ﻿@model HomeVM
 <div id="VillasList">
-    <!-- Remove px-lg-5 m-lg-4 m-sm-0 px-sm-0 and custom gutter -->
+    <!-- Villas Grid -->
     <div class="row">
-        @foreach (var villa in Model.VillaList)
+        @foreach (var villa in Model.VillaList.Items)
         {
             <div class="col-12 col-lg-6 mb-4">
                 <div class="card h-100" style="border-radius:5px; border: 1px solid #aaa">
@@ -97,4 +97,98 @@
             </div>
         }
     </div>
+
+    <!-- Pagination Controls -->
+    @if (Model.VillaList.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted">
+                Showing @((Model.VillaList.PageIndex - 1) * Model.VillaList.PageSize + 1) to 
+                @(Math.Min(Model.VillaList.PageIndex * Model.VillaList.PageSize, Model.VillaList.TotalCount)) 
+                of @Model.VillaList.TotalCount villas
+            </div>
+            
+            <nav aria-label="Villa pagination">
+                <ul class="pagination mb-0">
+                    <!-- Previous Button -->
+                    <li class="page-item @(!Model.VillaList.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" href="#" 
+                           onclick="loadPage(@(Model.VillaList.PageIndex - 1), @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    @{
+                        int startPage = Math.Max(1, Model.VillaList.PageIndex - 2);
+                        int endPage = Math.Min(Model.VillaList.TotalPages, Model.VillaList.PageIndex + 2);
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="loadPage(1, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.VillaList.PageIndex ? "active" : "")">
+                            <a class="page-link" href="#" onclick="loadPage(@i, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">@i</a>
+                        </li>
+                    }
+
+                    @if (endPage < Model.VillaList.TotalPages)
+                    {
+                        @if (endPage < Model.VillaList.TotalPages - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="loadPage(@Model.VillaList.TotalPages, @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">@Model.VillaList.TotalPages</a>
+                        </li>
+                    }
+
+                    <!-- Next Button -->
+                    <li class="page-item @(!Model.VillaList.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" href="#" 
+                           onclick="loadPage(@(Model.VillaList.PageIndex + 1), @Model.Nights, '@Model.CheckInDate.ToString("yyyy-MM-dd")')">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>
+
+<script>
+function loadPage(page, nights, checkInDate) {
+    // Show loading indicator
+    $('#VillasList').html('<div class="text-center p-4"><div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+    
+    $.ajax({
+        url: '@Url.Action("LoadPage", "Home")',
+        type: 'GET',
+        data: {
+            page: page,
+            nights: nights,
+            checkInDate: checkInDate
+        },
+        success: function(result) {
+            $('#VillasList').html(result);
+        },
+        error: function() {
+            $('#VillasList').html('<div class="alert alert-danger">Error loading villas. Please try again.</div>');
+        }
+    });
+}
+</script>

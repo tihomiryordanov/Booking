@@ -1,5 +1,6 @@
 using Booking.Application.Common.Interfaces;
 using Booking.Application.Common.Utility;
+using Booking.Application.Services.Interface;
 using Booking.Web.Models;
 using Booking.Web.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -7,69 +8,99 @@ using Microsoft.AspNetCore.Mvc;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.Presentation;
 using System.ComponentModel;
+using ListType = Syncfusion.Presentation.ListType;
 
 namespace Booking.Web.Controllers
 {
     public class HomeController : Controller
     {
-        //Implement IWEbHostEnvironment and inject it into the constructor
+        private readonly IVillaService _villaService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IUnitOfWork _unitOfWork;
+        private const int PageSize = 4;
 
-        public HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public HomeController(IVillaService villaService, IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _villaService = villaService;
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int page = 1)
         {
-            var homeVM = new HomeVM
+            var allVillas = _villaService.GetAllVillas();
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(allVillas, page, PageSize);
+
+            HomeVM homeVM = new()
             {
-                VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity"),
+                VillaList = paginatedVillas,
+                Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
-                CheckOutDate = null,
-                Nights = 1
+                CurrentPage = page,
+                PageSize = PageSize
             };
             return View(homeVM);
         }
-        //[HttpPost]
-        //public IActionResult Index(HomeVM homeVM)
-        //{
-        //    homeVM.VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
-        //    foreach (var villa in homeVM.VillaList)
-        //    {
-        //        if (villa.Id%2==0)
-        //        {
-        //            villa.IsAvailable = false;
-        //        }
-        //    }
-        //    return View(homeVM);
-        //}
+
         [HttpPost]
-        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
+        public IActionResult GetVillasByDate(int nights, DateOnly checkInDate, int page = 1)
         {
-            var VillaList = _unitOfWork.VillaRepository.GetAll(includeProperties: "VillaAmenity");
-            var villaNumbersList = _unitOfWork.VillaNumberRepository.GetAll().ToList();
-            var bookedVillas = _unitOfWork.BookingRepository.GetAll(u=>u.Status == SD.StatusApproved ||
-            u.Status == SD.StatusCheckedIn).ToList();
-            foreach (var villa in VillaList)
-            {
-                villa.IsAvailable = SD.VillaRoomsAvailable_Count(villa.Id, villaNumbersList, checkInDate, nights, bookedVillas) > 0;
-            }
+            var villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate);
+            var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, PageSize);
+
             HomeVM homeVM = new()
             {
                 CheckInDate = checkInDate,
-                VillaList = VillaList,
-                Nights = nights
+                VillaList = paginatedVillas,
+                Nights = nights,
+                CurrentPage = page,
+                PageSize = PageSize
             };
-            //Thread.Sleep(2000); // Simulate a delay for demonstration purposes
+
             return PartialView("_VillaList", homeVM);
         }
+
+        [HttpGet]
+        public IActionResult LoadPage(int page, int nights, DateOnly? checkInDate)
+        {
+            HomeVM homeVM;
+
+            if (checkInDate.HasValue && checkInDate > DateOnly.FromDateTime(DateTime.Now))
+            {
+                // Load filtered villas by date with pagination
+                var villas = _villaService.GetVillasAvailabilityByDate(nights, checkInDate.Value);
+                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(villas, page, PageSize);
+
+                homeVM = new()
+                {
+                    CheckInDate = checkInDate.Value,
+                    VillaList = paginatedVillas,
+                    Nights = nights,
+                    CurrentPage = page,
+                    PageSize = PageSize
+                };
+            }
+            else
+            {
+                // Load all villas with pagination
+                var allVillas = _villaService.GetAllVillas();
+                var paginatedVillas = PaginatedList<Domain.Entities.Villa>.Create(allVillas, page, PageSize);
+
+                homeVM = new()
+                {
+                    VillaList = paginatedVillas,
+                    Nights = nights,
+                    CheckInDate = checkInDate ?? DateOnly.FromDateTime(DateTime.Now),
+                    CurrentPage = page,
+                    PageSize = PageSize
+                };
+            }
+
+            return PartialView("_VillaList", homeVM);
+        }
+
         [HttpPost]
         public IActionResult GeneratePPTExport(int id)
         {
-            var villa = _unitOfWork.VillaRepository.Get(u => u.Id == id, includeProperties: "VillaAmenity");
+            var villa = _villaService.GetVillaById(id);
             if (villa is null)
             {
                 return RedirectToAction(nameof(Error));
@@ -78,11 +109,9 @@ namespace Booking.Web.Controllers
             string basePath = _webHostEnvironment.WebRootPath;
             string filePath = basePath + @"/Exports/ExportVillaDetails.pptx";
 
-
             using IPresentation presentation = Presentation.Open(filePath);
 
             ISlide slide = presentation.Slides[0];
-
 
             IShape? shape = slide.Shapes.FirstOrDefault(u => u.ShapeName == "txtVillaName") as IShape;
             if (shape is not null)
@@ -95,7 +124,6 @@ namespace Booking.Web.Controllers
             {
                 shape.TextBody.Text = villa.Description;
             }
-
 
             shape = slide.Shapes.FirstOrDefault(u => u.ShapeName == "txtOccupancy") as IShape;
             if (shape is not null)
@@ -113,7 +141,6 @@ namespace Booking.Web.Controllers
                 shape.TextBody.Text = string.Format("USD {0}/night", villa.Price.ToString("C"));
             }
 
-
             shape = slide.Shapes.FirstOrDefault(u => u.ShapeName == "txtVillaAmenitiesHeading") as IShape;
             if (shape is not null)
             {
@@ -126,14 +153,12 @@ namespace Booking.Web.Controllers
                     IParagraph paragraph = shape.TextBody.AddParagraph();
                     ITextPart textPart = paragraph.AddTextPart(item);
 
-                    paragraph.ListFormat.Type = Syncfusion.Presentation.ListType.Bulleted;
+                    paragraph.ListFormat.Type = ListType.Bulleted;
                     paragraph.ListFormat.BulletCharacter = '\u2022';
                     textPart.Font.FontName = "system-ui";
                     textPart.Font.FontSize = 18;
                     textPart.Font.Color = ColorObject.FromArgb(144, 148, 152);
-
                 }
-
             }
 
             shape = slide.Shapes.FirstOrDefault(u => u.ShapeName == "imgVilla") as IShape;
@@ -154,18 +179,19 @@ namespace Booking.Web.Controllers
                 slide.Shapes.Remove(shape);
                 using MemoryStream imageStream = new(imageData);
                 IPicture newPicture = slide.Pictures.AddPicture(imageStream, 60, 120, 300, 200);
-
             }
-
-
 
             MemoryStream memoryStream = new();
             presentation.Save(memoryStream);
             memoryStream.Position = 0;
             return File(memoryStream, "application/pptx", "villa.pptx");
-
-
         }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
         public IActionResult Error()
         {
             return View();
