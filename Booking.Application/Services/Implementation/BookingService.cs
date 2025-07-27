@@ -41,12 +41,12 @@ namespace Booking.Application.Services.Implementation
                         return _unitOfWork.BookingRepository.GetAll(u => u.UserId == userId, includeProperties: "User,Villa");
                     }
                 }
-                return _unitOfWork.BookingRepository.GetAll(includeProperties: "User, Villa");
+                return _unitOfWork.BookingRepository.GetAll(includeProperties: "User,Villa");
             }
 
             public BookingTable GetBookingById(int bookingId)
             {
-                return _unitOfWork.BookingRepository.Get(u => u.Id == bookingId, includeProperties: "User, Villa");
+                return _unitOfWork.BookingRepository.Get(u => u.Id == bookingId, includeProperties: "User,Villa");
             }
 
             public IEnumerable<int> GetCheckedInVillaNumbers(int villaId)
@@ -71,7 +71,8 @@ namespace Booking.Application.Services.Implementation
                         bookingFromDb.ActualCheckOutDate = DateTime.Now;
                     }
                 }
-                _unitOfWork.Save();
+                _unitOfWork.BookingRepository.Update(bookingFromDb);
+            _unitOfWork.Save();
             }
 
             public void UpdateStripePaymentID(int bookingId, string sessionId, string paymentIntentId)
@@ -90,6 +91,7 @@ namespace Booking.Application.Services.Implementation
                         bookingFromDb.IsPaymentSuccessful = true;
                     }
                 }
+                _unitOfWork.BookingRepository.Update(bookingFromDb);
                 _unitOfWork.Save();
             }
         }

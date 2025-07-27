@@ -89,8 +89,8 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "X-CSRF-TOKEN";
     options.Cookie.Name = "__Host-X-CSRF-TOKEN";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
-        ? CookieSecurePolicy.SameAsRequest 
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax; // Changed from Strict to Lax
 });
@@ -100,8 +100,8 @@ builder.Services.AddSession(options =>
 {
     options.Cookie.Name = "__Host-Session";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
-        ? CookieSecurePolicy.SameAsRequest 
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax; // Changed from Strict to Lax
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -123,6 +123,7 @@ builder.Services.AddScoped<IVillaService, VillaService>();
 builder.Services.AddScoped<IVillaNumberService, VillaNumberService>();
 builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IStripeSessionService, StripeSessionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Add MVC with selective antiforgery validation
@@ -153,41 +154,41 @@ else
 }
 
 // Security middleware pipeline
-app.UseForwardedHeaders();
+//app.UseForwardedHeaders();
 
 // Custom security headers middleware with exemptions for payment callbacks
-app.Use(async (context, next) =>
-{
-    // Skip strict security headers for payment callback endpoints
-    var path = context.Request.Path.Value?.ToLower();
-    var isPaymentCallback = path?.Contains("/payment/") == true || 
-                           path?.Contains("/booking/confirmation") == true ||
-                           path?.Contains("/stripe/") == true;
+//app.Use(async (context, next) =>
+//{
+//    // Skip strict security headers for payment callback endpoints
+//    var path = context.Request.Path.Value?.ToLower();
+//    var isPaymentCallback = path?.Contains("/payment/") == true || 
+//                           path?.Contains("/booking/confirmation") == true ||
+//                           path?.Contains("/stripe/") == true;
 
-    if (!isPaymentCallback)
-    {
-        // Security headers for regular requests
-        context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-        context.Response.Headers.Add("X-Frame-Options", "DENY");
-        context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-        context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-        context.Response.Headers.Add("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+//    if (!isPaymentCallback)
+//    {
+//        // Security headers for regular requests
+//        context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+//        context.Response.Headers.Add("X-Frame-Options", "DENY");
+//        context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+//        context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+//        context.Response.Headers.Add("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
         
-        // Content Security Policy
-        var csp = "default-src 'self'; " +
-                  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com; " +
-                  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                  "img-src 'self' data: https:; " +
-                  "font-src 'self' https://cdn.jsdelivr.net; " +
-                  "connect-src 'self' https://api.stripe.com; " +
-                  "frame-src https://js.stripe.com https://hooks.stripe.com; " +
-                  "frame-ancestors 'none';";
+//        // Content Security Policy
+//        var csp = "default-src 'self'; " +
+//                  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://js.stripe.com; " +
+//                  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+//                  "img-src 'self' data: https:; " +
+//                  "font-src 'self' https://cdn.jsdelivr.net; " +
+//                  "connect-src 'self' https://api.stripe.com; " +
+//                  "frame-src https://js.stripe.com https://hooks.stripe.com; " +
+//                  "frame-ancestors 'none';";
         
-        context.Response.Headers.Add("Content-Security-Policy", csp);
-    }
+//        context.Response.Headers.Add("Content-Security-Policy", csp);
+//    }
     
-    await next();
-});
+//    await next();
+//});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -1,6 +1,4 @@
-﻿
-
-using Booking.Application.Services.Interface;
+﻿using Booking.Application.Services.Interface;
 using Booking.Domain.Entities;
 using Stripe.Checkout;
 
@@ -8,11 +6,16 @@ namespace Booking.Application.Services.Implementation
 {
     public class PaymentService : IPaymentService
     {
+        private readonly IStripeSessionService _stripeSessionService;
+
+        public PaymentService(IStripeSessionService stripeSessionService)
+        {
+            _stripeSessionService = stripeSessionService;
+        }
+
         public Session CreateStripeSession(SessionCreateOptions options)
         {
-            var service = new SessionService();
-            Session session = service.Create(options);
-            return session;
+            return _stripeSessionService.Create(options);
         }
 
         public SessionCreateOptions CreateStripeSessionOptions(BookingTable booking, Villa villa, string domain)
