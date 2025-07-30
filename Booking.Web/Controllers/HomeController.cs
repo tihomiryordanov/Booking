@@ -1,3 +1,4 @@
+using AspNetCoreGeneratedDocument;
 using Booking.Application.Common.Interfaces;
 using Booking.Application.Common.Utility;
 using Booking.Application.Services.Interface;
@@ -26,6 +27,10 @@ namespace Booking.Web.Controllers
         public IActionResult Index(int page = 1, string? searchTerm = null, double? minPrice = null, 
                                   double? maxPrice = null, int? minOccupancy = null, int? maxOccupancy = null)
         {
+            //return BadRequest();
+            //return StatusCode(500);
+            //return NotFound();
+            //return StatusCode(403);
             // return error page if the page number is invalid
             if (page < 1)
             {
@@ -213,10 +218,10 @@ namespace Booking.Web.Controllers
             return PartialView("_VillaList", model);
         }
 
-        [HttpPost]
-        public IActionResult GeneratePPTExport(int id)
+        [HttpGet]
+        public IActionResult GeneratePPTExport(int Id)
         {
-            var villa = _villaService.GetVillaById(id);
+            var villa = _villaService.GetVillaById(Id);
             if (villa is null)
             {
                 return RedirectToAction(nameof(Error));

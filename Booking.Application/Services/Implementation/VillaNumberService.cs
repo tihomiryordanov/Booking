@@ -22,6 +22,7 @@ namespace Booking.Application.Services.Implementation
 
         public void CreateVillaNumber(VillaNumber villaNumber)
         {
+            ArgumentNullException.ThrowIfNull(villaNumber);
             _unitOfWork.VillaNumberRepository.Add(villaNumber);
             _unitOfWork.Save();
         }
@@ -57,6 +58,7 @@ namespace Booking.Application.Services.Implementation
 
         public void UpdateVillaNumber(VillaNumber villaNumber)
         {
+            ArgumentNullException.ThrowIfNull(villaNumber);
             _unitOfWork.VillaNumberRepository.Update(villaNumber);
             _unitOfWork.Save();
         }
