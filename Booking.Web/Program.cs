@@ -11,6 +11,7 @@ using Syncfusion.Licensing;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,35 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Add Facebook Authentication
+builder.Services.AddAuthentication()
+    .AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+        facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        facebookOptions.SaveTokens = true;
+        
+        // Request additional permissions/scopes
+        facebookOptions.Scope.Add("email");
+        facebookOptions.Scope.Add("public_profile");
+        
+        // Map additional claims
+        facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+        facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+        facebookOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+        facebookOptions.ClaimActions.MapJsonKey("urn:facebook:first_name", "first_name");
+        facebookOptions.ClaimActions.MapJsonKey("urn:facebook:last_name", "last_name");
+        
+        // Handle the callback
+        facebookOptions.Events.OnCreatingTicket = context =>
+        {
+            var identity = (ClaimsIdentity)context.Principal.Identity;
+            var profileImg = $"https://graph.facebook.com/{context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value}/picture?type=large";
+            identity.AddClaim(new Claim("urn:facebook:picture", profileImg));
+            return Task.CompletedTask;
+        };
+    });
+
 // Enhanced Cookie Configuration with more flexible settings for payment flows
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -81,6 +111,15 @@ builder.Services.ConfigureApplicationCookie(options =>
     
     // Session timeout
     options.Events.OnValidatePrincipal = SecurityStampValidator.ValidatePrincipalAsync;
+});
+
+// Configure external cookie options for OAuth providers
+builder.Services.ConfigureExternalCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() 
+        ? CookieSecurePolicy.SameAsRequest 
+        : CookieSecurePolicy.Always;
 });
 
 // Anti-forgery token configuration with exemptions for payment callbacks
