@@ -1,0 +1,15 @@
+# Exclude the real settings, keep the template
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Keep these files (templates)
+!appsettings.template.json
+
+# Other exclusions
+*.user
+*.suo
+.vs/
+bin/
+obj/
+packages/
