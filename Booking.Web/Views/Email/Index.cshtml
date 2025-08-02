@@ -1,0 +1,76 @@
+@{
+    ViewData["Title"] = "Email Client";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gmail Client</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Authentication Status -->
+                    <div class="mb-3">
+                        @if (ViewBag.IsAuthenticated == true)
+                        {
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Connected to Gmail
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Not connected to Gmail
+                                <a href="@Url.Action("Authenticate", "Email")" class="btn btn-primary btn-sm ms-2">
+                                    <i class="fab fa-google"></i> Connect Gmail
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Success/Error Messages -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Email Form -->
+                    <form asp-action="SendEmail" method="post">
+                        <div class="mb-3">
+                            <label for="to" class="form-label">To:</label>
+                            <input type="email" class="form-control" id="to" name="to" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject:</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message:</label>
+                            <textarea class="form-control" id="message" name="message" rows="8" required></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" @(ViewBag.IsAuthenticated != true ? "disabled" : "")>
+                                <i class="fas fa-paper-plane"></i> Send Email
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

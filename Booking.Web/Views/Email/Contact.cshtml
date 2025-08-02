@@ -1,0 +1,149 @@
+@model Booking.Application.Contact.ContactMessage
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-envelope me-2"></i>Contact Us
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Success/Error Messages -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <p class="text-muted">
+                            We'd love to hear from you! Send us a message and we'll respond as soon as possible.
+                        </p>
+                    </div>
+
+                    <form asp-action="Contact" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label">
+                                    <i class="fas fa-user me-1"></i>Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Name" class="form-control" placeholder="Enter your full name">
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email Address <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Email" class="form-control" placeholder="Enter your email address">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">
+                                <i class="fas fa-phone me-1"></i>Phone Number
+                            </label>
+                            <input asp-for="Phone" class="form-control" placeholder="Enter your phone number (optional)">
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label">
+                                <i class="fas fa-tag me-1"></i>Subject <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Subject" class="form-control" placeholder="What is this regarding?">
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Message" class="form-label">
+                                <i class="fas fa-comment me-1"></i>Message <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Message" class="form-control" rows="6" 
+                                     placeholder="Please provide details about your inquiry..."></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
+                            <div class="form-text">
+                                <span id="messageCounter">0</span>/2000 characters
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contact Information Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                            <h6 class="fw-bold">Email</h6>
+                            <p class="text-muted">office.alfabuld@gmail.com</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                            <h6 class="fw-bold">Response Time</h6>
+                            <p class="text-muted">Within 24-48 hours</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+                            <h6 class="fw-bold">Privacy</h6>
+                            <p class="text-muted">Your information is secure</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Character counter for message field
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageField = document.getElementById('Message');
+            const messageCounter = document.getElementById('messageCounter');
+            
+            function updateCounter() {
+                const currentLength = messageField.value.length;
+                messageCounter.textContent = currentLength;
+                
+                if (currentLength > 1800) {
+                    messageCounter.style.color = '#dc3545'; // Red
+                } else if (currentLength > 1500) {
+                    messageCounter.style.color = '#ffc107'; // Yellow
+                } else {
+                    messageCounter.style.color = '#6c757d'; // Default
+                }
+            }
+            
+            messageField.addEventListener('input', updateCounter);
+            updateCounter(); // Initial count
+        });
+    </script>
+    
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

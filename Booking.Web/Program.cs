@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Booking.Application.Contact;
+using Booking.Infrastructure.Emails;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -175,6 +177,16 @@ builder.Services.AddControllersWithViews(options =>
 //register stripe settings
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Syncfusion:Licensekey").Get<string>());
+
+// Configure Google OAuth and Email settings
+builder.Services.Configure<GoogleOAuthSettings>(
+    builder.Configuration.GetSection("GoogleOAuth"));
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+// Register Google Token Service and Email Service
+builder.Services.AddSingleton<IGoogleTokenService, GoogleTokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

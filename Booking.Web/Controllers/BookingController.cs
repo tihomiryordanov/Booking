@@ -1,5 +1,6 @@
 ﻿using Booking.Application.Common.Interfaces;
 using Booking.Application.Common.Utility;
+using Booking.Application.Contact;
 using Booking.Application.Services.Interface;
 using Booking.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -27,11 +28,14 @@ namespace Booking.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IVillaNumberService _villaNumberService;
         private readonly IPaymentService _paymentService;
+        private readonly IEmailService _emailService;
+        
         
         public BookingController(IBookingService bookingService,
             IPaymentService paymentService,
             IVillaService villaService, IVillaNumberService villaNumberService,
-            IWebHostEnvironment webHostEnvironment, UserManager<ApplicationUser> userManager
+            IWebHostEnvironment webHostEnvironment, UserManager<ApplicationUser> userManager,
+            IEmailService emailService
             )
         {
             
@@ -41,6 +45,7 @@ namespace Booking.Web.Controllers
             _villaNumberService = villaNumberService;
             _bookingService = bookingService;
             _webHostEnvironment = webHostEnvironment;
+            _emailService = emailService;
         }
         [Authorize]
         public IActionResult Index()
@@ -131,7 +136,10 @@ namespace Booking.Web.Controllers
                     _bookingService.UpdateStatus(bookingFromDb.Id, SD.StatusApproved, 0);
                     _bookingService.UpdateStripePaymentID(bookingFromDb.Id, session.Id, session.PaymentIntentId);
 
-                   
+                  //send email after successful payment to user
+                  _emailService.SendEmailAsync(bookingFromDb.Email, "Booking Confirmation - BookingApp", "<p>Your booking has been confirmed. Booking ID - " + bookingFromDb.Id + "</p>").GetAwaiter().GetResult();
+                  
+
                 }
             }
 

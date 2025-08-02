@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "Email Setup";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Gmail Authentication Setup</h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["Success"]</div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <div class="mb-3">
+                        @if (ViewBag.HasValidToken == true)
+                        {
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Gmail is authenticated and ready for contact form emails
+                            </div>
+                            <form asp-action="ClearTokens" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-warning">Clear Authentication</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Gmail not authenticated - Contact form emails won't work
+                            </div>
+                            <a href="@Url.Action("AuthenticateGmail")" class="btn btn-primary">
+                                <i class="fab fa-google"></i> Authenticate Gmail
+                            </a>
+                        }
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>Instructions:</h5>
+                        <ol>
+                            <li>Click "Authenticate Gmail" to start OAuth flow</li>
+                            <li>Sign in with the Gmail account: <strong>office.alfabuld@gmail.com</strong></li>
+                            <li>Grant permissions for sending emails</li>
+                            <li>Once authenticated, contact form emails will work automatically</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
