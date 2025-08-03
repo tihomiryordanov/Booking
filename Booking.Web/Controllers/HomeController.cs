@@ -32,10 +32,10 @@ namespace Booking.Web.Controllers
             //return NotFound();
             //return StatusCode(403);
             // return error page if the page number is invalid
-            if (page < 1)
-            {
-                return RedirectToAction(nameof(Error));
-            }
+            //if (page < 1)
+            //{
+            //    return RedirectToAction(nameof(Error));
+            //}
             IEnumerable<Domain.Entities.Villa> villas;
 
             if (!string.IsNullOrEmpty(searchTerm) || minPrice.HasValue || maxPrice.HasValue || 
@@ -316,6 +316,76 @@ namespace Booking.Web.Controllers
         public IActionResult Error()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult VillaDetails(int id, DateOnly? checkInDate = null, int nights = 1)
+        {
+            var villa = _villaService.GetVillaById(id);
+            if (villa == null)
+            {
+                return NotFound();
+            }
+            
+            var viewModel = new VillaDetailsVM
+            {
+                Villa = villa,
+                CheckInDate = checkInDate ?? DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                Nights = nights,
+                IsAvailable = true // Default to true
+            };
+
+            // Check availability if dates are provided and valid
+            if (checkInDate.HasValue && checkInDate.Value > DateOnly.FromDateTime(DateTime.Now))
+            {
+                viewModel.IsAvailable = _villaService.IsVillaAvailableByDate(id, nights, checkInDate.Value);
+            }
+            
+            return View(viewModel);
+        }
+
+        // Add method to check availability from villa details page
+        [HttpPost]
+        public IActionResult CheckVillaAvailability(VillaDetailsVM model)
+        {
+            if (model.CheckInDate < DateOnly.FromDateTime(DateTime.Now))
+            {
+                ModelState.AddModelError("CheckInDate", "Check-in date cannot be in the past.");
+            }
+
+            if (model.Nights < 1 || model.Nights > 30)
+            {
+                ModelState.AddModelError("Nights", "Number of nights must be between 1 and 30.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                model.Villa = _villaService.GetVillaById(model.Villa.Id);
+                model.IsAvailable = _villaService.IsVillaAvailableByDate(model.Villa.Id, model.Nights, model.CheckInDate);
+                
+                if (model.IsAvailable)
+                {
+                    TempData["success"] = $"Villa is available for {model.Nights} night(s) starting {model.CheckInDate:MMM dd, yyyy}";
+                }
+                else
+                {
+                    TempData["error"] = $"Villa is not available for the selected dates.";
+                }
+            }
+            else
+            {
+                // Reload villa data if validation fails
+                model.Villa = _villaService.GetVillaById(model.Villa.Id);
+            }
+
+            return View("VillaDetails", model);
+        }
+
+        // Alternative: If you want to keep "BookingDetails" as the route name for backward compatibility
+        [HttpGet]
+        public IActionResult BookingDetails(int id)
+        {
+            return VillaDetails(id);
         }
     }
 }

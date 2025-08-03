@@ -166,6 +166,8 @@ builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IStripeSessionService, StripeSessionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+// Register HttpClient for ChatbotService
+builder.Services.AddHttpClient<IChatbotService, ChatbotService>();
 
 // Add MVC with selective antiforgery validation
 builder.Services.AddControllersWithViews(options =>
@@ -251,6 +253,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Map routes
+app.MapControllerRoute(
+    name: "villaDetails",
+    pattern: "VillaDetails/{id:int}",
+    defaults: new { controller = "Home", action = "VillaDetails" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

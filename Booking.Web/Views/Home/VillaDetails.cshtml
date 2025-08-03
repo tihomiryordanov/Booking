@@ -1,0 +1,212 @@
+@model VillaDetailsVM
+
+@{
+    ViewData["Title"] = $"{Model.Villa.Name} - Villa Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Navigation -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Villa.Name</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Villa Details Card -->
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-success text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="bi bi-house-door"></i> @Model.Villa.Name
+                </h2>
+                <div class="d-flex gap-2">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-arrow-left"></i> Back to Villas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            <!-- Villa Information using the shared partial -->
+            <div class="p-4">
+                <partial name="_VillaDetail" model="@Model.Villa" />
+            </div>
+            
+            <hr class="my-0">
+            
+            <!-- Availability Check Section -->
+            <div class="p-4 bg-light">
+                <div class="row">
+                    <div class="col-12 col-lg-8">
+                        <h4 class="text-success mb-3">
+                            <i class="bi bi-calendar-check"></i> Check Availability & Book
+                        </h4>
+                        
+                        <form asp-action="CheckVillaAvailability" method="post" class="row g-3">
+                            <input asp-for="Villa.Id" type="hidden" />
+                            
+                            <div class="col-md-4">
+                                <label asp-for="CheckInDate" class="form-label">Check-in Date</label>
+                                <input asp-for="CheckInDate" type="date" class="form-control" 
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                                <span asp-validation-for="CheckInDate" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label asp-for="Nights" class="form-label">Number of Nights</label>
+                                <select asp-for="Nights" class="form-select">
+                                    @for (var i = 1; i <= 30; i++)
+                                    {
+                                        <option value="@i" selected="@(i == Model.Nights)">@i night@(i > 1 ? "s" : "")</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Nights" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search"></i> Check Availability
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-2 d-flex align-items-end">
+                                @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now) && Model.IsAvailable)
+                                {
+                                    <a asp-controller="Booking" asp-action="FinalizeBooking" 
+                                       asp-route-villaId="@Model.Villa.Id"
+                                       asp-route-checkInDate="@Model.CheckInDate"
+                                       asp-route-nights="@Model.Nights"
+                                       class="btn btn-success w-100">
+                                        <i class="bi bi-calendar-plus"></i> Book Now
+                                    </a>
+                                }
+                            </div>
+                        </form>
+                        
+                        <!-- Availability Result -->
+                        @if (Model.CheckInDate > DateOnly.FromDateTime(DateTime.Now))
+                        {
+                            <div class="mt-3">
+                                @if (Model.IsAvailable)
+                                {
+                                    <div class="alert alert-success d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill me-2"></i>
+                                        <div>
+                                            <strong>Available!</strong> This villa is available for 
+                                            <strong>@Model.Nights night@(Model.Nights > 1 ? "s" : "")</strong> 
+                                            starting <strong>@Model.CheckInDate.ToString("MMM dd, yyyy")</strong>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <div>
+                                            <strong>Not Available</strong> for the selected dates. 
+                                            Please try different dates.
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Pricing Summary -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-calculator"></i> Pricing Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Price per night:</span>
+                                    <strong>@Model.Villa.Price.ToString("C")</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Number of nights:</span>
+                                    <strong>@Model.Nights</strong>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total Cost:</strong>
+                                    <strong class="text-success fs-5">@((Model.Villa.Price * Model.Nights).ToString("C"))</strong>
+                                </div>
+                                
+                                <div class="mt-3 small text-muted">
+                                    <div class="d-flex justify-content-between">
+                                        <span><i class="bi bi-people"></i> Max Occupancy:</span>
+                                        <span>@Model.Villa.Occupancy guests</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span><i class="bi bi-arrows-angle-expand"></i> Size:</span>
+                                        <span>@Model.Villa.SquareFeet sq ft</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">Explore More Options</h5>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a asp-controller="Home" asp-action="GeneratePPTExport" asp-route-id="@Model.Villa.Id" 
+                           class="btn btn-outline-info">
+                            <i class="bi bi-file-earmark-ppt"></i> Download Villa Presentation
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-search"></i> Browse All Villas
+                        </a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Booking" asp-action="Index" class="btn btn-outline-success">
+                                <i class="bi bi-list-ul"></i> My Bookings
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    
+    <script>
+        // Set minimum date to today for check-in date input
+        $(document).ready(function() {
+            var today = new Date().toISOString().split('T')[0];
+            $('#CheckInDate').attr('min', today);
+            
+            // Update total cost when nights change
+            $('#Nights').change(function() {
+                var nights = parseInt($(this).val());
+                var pricePerNight = @Model.Villa.Price;
+                var totalCost = (nights * pricePerNight).toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                });
+                // Update could be added here if you want real-time price updates
+            });
+        });
+    </script>
+}

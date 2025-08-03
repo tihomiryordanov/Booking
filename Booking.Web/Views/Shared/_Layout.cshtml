@@ -47,6 +47,11 @@
                                 <i class="fas fa-envelope me-1"></i>Contact
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Chatbot" asp-action="Index">
+                                <i class="bi bi-robot me-1"></i>AI Assistant
+                            </a>
+                        </li>
                     </ul>
                     
                     <!-- Enhanced Theme Toggle -->
@@ -86,5 +91,6 @@
     <script src="~/js/theme-toggle.js" asp-append-version="true"></script>
     
     @await RenderSectionAsync("Scripts", required: false)
+    <partial name="_ChatWidget" />
 </body>
 </html>

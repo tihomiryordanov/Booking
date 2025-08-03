@@ -187,7 +187,9 @@ namespace Booking.Web.Controllers
 
             textSelection = document.Find("xx_customer_phone", false, true);
             textRange = textSelection.GetAsOneRange();
-            textRange.Text = bookingFromDb.Phone;
+            // Fix for CS8601: Possible null reference assignment.
+            // Ensure that bookingFromDb.Phone is not null before assignment.
+            textRange.Text = bookingFromDb.Phone ?? string.Empty;
 
             textSelection = document.Find("xx_customer_email", false, true);
             textRange = textSelection.GetAsOneRange();
